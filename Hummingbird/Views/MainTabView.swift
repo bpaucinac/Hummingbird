@@ -2,7 +2,9 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var userViewModel: UserViewModel
-    @StateObject private var securityViewModel = SecurityViewModel()
+    @EnvironmentObject var securityViewModel: SecurityViewModel
+    @EnvironmentObject var appConfiguration: AppConfiguration
+    @StateObject private var assistantViewModel = AssistantViewModel()
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -10,53 +12,48 @@ struct MainTabView: View {
             NavigationStack {
                 AssistantView()
                     .navigationTitle("Assistant")
-                    .navigationBarTitleDisplayMode(.large)
+                    .environmentObject(assistantViewModel)
+                    .environmentObject(appConfiguration)
             }
             .tabItem {
                 Label("Assistant", systemImage: "bubble.left.and.bubble.right")
             }
             
             NavigationStack {
-                NotificationsView()
-                    .navigationTitle("Notifications")
-                    .navigationBarTitleDisplayMode(.large)
+                ApplicationsView()
+                    .navigationTitle("Applications")
             }
             .tabItem {
-                Label("Notifications", systemImage: "bell")
+                Label("Apps", systemImage: "square.grid.2x2")
             }
-            .badge(2) // Example badge, adjust based on actual notifications
             
             NavigationStack {
                 MarketsView()
                     .navigationTitle("Markets")
-                    .navigationBarTitleDisplayMode(.large)
             }
             .tabItem {
                 Label("Markets", systemImage: "chart.xyaxis.line")
             }
             
             NavigationStack {
-                ApplicationsView()
-                    .environmentObject(userViewModel)
-                    .environmentObject(securityViewModel)
-                    .navigationTitle("Applications")
-                    .navigationBarTitleDisplayMode(.large)
+                NotificationsView()
+                    .navigationTitle("Notifications")
             }
             .tabItem {
-                Label("Applications", systemImage: "square.grid.2x2")
+                Label("Notifications", systemImage: "bell")
             }
             
             NavigationStack {
                 SettingsView()
-                    .environmentObject(userViewModel)
                     .navigationTitle("Settings")
-                    .navigationBarTitleDisplayMode(.large)
+                    .environmentObject(userViewModel)
             }
             .tabItem {
                 Label("Settings", systemImage: "gear")
             }
         }
         .onAppear {
+            // Load initial data
             Task {
                 await securityViewModel.loadSecurities(token: userViewModel.token)
             }
@@ -70,50 +67,209 @@ struct MainTabView: View {
 }
 
 struct AssistantView: View {
+    @EnvironmentObject var assistantViewModel: AssistantViewModel
+    @EnvironmentObject var appConfiguration: AppConfiguration
+    @State private var messageText = ""
+    @FocusState private var isTextFieldFocused: Bool
+    
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Image(systemName: "bubble.left.and.bubble.right")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 60, height: 60)
-                    .foregroundColor(.accentColor)
-                    .padding(.top, 32)
-                    .accessibilityHidden(true)
-                
-                Text("AI Assistant")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Text("Ask me anything about your finances")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .padding(.bottom, 16)
-                
-                // Chat interface placeholder
-                VStack(spacing: 16) {
-                    ForEach(0..<3) { _ in
-                        MessageBubble()
+        VStack(spacing: 0) {
+            // Chat history
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        if assistantViewModel.currentConversation.messages.isEmpty {
+                            // Welcome screen when no messages
+                            VStack(spacing: 20) {
+                                Image(systemName: "bubble.left.and.bubble.right")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.accentColor)
+                                    .padding(.top, 32)
+                                    .accessibilityHidden(true)
+                                
+                                Text("Claude AI Assistant")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                
+                                Text("Ask me anything about your finances")
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.bottom, 16)
+                                
+                                // Sample questions
+                                VStack(spacing: 12) {
+                                    ForEach(["How do stocks work?", "Explain market capitalization", "What is a bond yield?"], id: \.self) { question in
+                                        Button {
+                                            messageText = question
+                                            sendMessage()
+                                        } label: {
+                                            Text(question)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding()
+                                                .background(Color(.systemGray6))
+                                                .cornerRadius(12)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                            .padding()
+                        } else {
+                            // Show conversation
+                            ForEach(assistantViewModel.currentConversation.messages) { message in
+                                MessageView(message: message)
+                                    .id(message.id)
+                            }
+                            .padding(.horizontal)
+                            .padding(.top, 16)
+                            
+                            // Loading indicator
+                            if assistantViewModel.isProcessing {
+                                HStack {
+                                    ProgressView()
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .background(Color(.systemGray6))
+                                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                                    
+                                    Spacer()
+                                }
+                                .padding(.horizontal)
+                                .id("loader")
+                            }
+                        }
+                    }
+                    .padding(.bottom, 8)
+                }
+                .onChange(of: assistantViewModel.currentConversation.messages.count) { oldValue, newValue in
+                    // Scroll to bottom when new messages appear
+                    if let lastMessage = assistantViewModel.currentConversation.messages.last {
+                        withAnimation {
+                            proxy.scrollTo(lastMessage.id, anchor: .bottom)
+                        }
                     }
                 }
-                .padding(.horizontal)
+                .onChange(of: assistantViewModel.isProcessing) { oldValue, newValue in
+                    if newValue {
+                        withAnimation {
+                            proxy.scrollTo("loader", anchor: .bottom)
+                        }
+                    }
+                }
+            }
+            
+            // Error message
+            if let error = assistantViewModel.error, assistantViewModel.showError {
+                Text(error)
+                    .font(.footnote)
+                    .foregroundColor(.red)
+                    .padding(.horizontal)
+                    .padding(.top, 4)
+            }
+            
+            // Input field
+            HStack(spacing: 12) {
+                TextField("Message Claude...", text: $messageText, axis: .vertical)
+                    .padding(12)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(20)
+                    .focused($isTextFieldFocused)
+                    .disabled(assistantViewModel.isProcessing)
+                
+                Button {
+                    sendMessage()
+                } label: {
+                    Image(systemName: "arrow.up.circle.fill")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing ? .gray : .accentColor)
+                }
+                .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing)
             }
             .padding()
+            .background(Color(.systemBackground))
+            .overlay(
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(Color(.systemGray5)),
+                alignment: .top
+            )
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    assistantViewModel.startNewConversation()
+                    messageText = ""
+                    isTextFieldFocused = false
+                } label: {
+                    Image(systemName: "square.and.pencil")
+                }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    appConfiguration.showAPIKeySetupSheet = true
+                } label: {
+                    Image(systemName: "key")
+                }
+            }
+        }
+        .sheet(isPresented: $assistantViewModel.showAPIKeySetup) {
+            APIKeySetupView()
+        }
+    }
+    
+    private func sendMessage() {
+        let trimmedMessage = messageText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedMessage.isEmpty else { return }
+        
+        Task {
+            await assistantViewModel.sendMessage(trimmedMessage)
+            messageText = ""
         }
     }
 }
 
-struct MessageBubble: View {
+struct MessageView: View {
+    let message: Message
+    
+    private var isUser: Bool {
+        message.role == .user
+    }
+    
     var body: some View {
         HStack(alignment: .top) {
-            Text("Sample message that demonstrates the chat interface")
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .frame(minHeight: 44)
-            Spacer(minLength: 60)
+            if isUser {
+                Spacer(minLength: 60)
+            }
+            
+            VStack(alignment: isUser ? .trailing : .leading) {
+                Text(message.content)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(isUser ? Color.accentColor : Color(.systemGray6))
+                    .foregroundColor(isUser ? .white : .primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                
+                Text(formatTimestamp(message.timestamp))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 4)
+            }
+            
+            if !isUser {
+                Spacer(minLength: 60)
+            }
         }
+    }
+    
+    private func formatTimestamp(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 

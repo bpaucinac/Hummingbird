@@ -10,6 +10,11 @@ struct HummingbirdApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appConfiguration)
+                .onAppear {
+                    // Setup initial Claude API key on first launch for development
+                    // In production, you would use a proper API key management system
+                    appConfiguration.setupInitialAPIKeyIfNeeded()
+                }
         }
     }
 }
@@ -17,8 +22,49 @@ struct HummingbirdApp: App {
 // MARK: - App Configuration
 @MainActor
 final class AppConfiguration: ObservableObject {
+    @Published var showAPIKeySetupSheet = false
+    @Published var apiKeyStatus: APIKeyStatus = .unknown
+    
+    enum APIKeyStatus {
+        case available
+        case missing
+        case unknown
+    }
+    
+    private let claudeService = ClaudeService()
+    
     init() {
         configureAppearance()
+        checkAPIKeyStatus()
+    }
+    
+    // Check if API key is available
+    func checkAPIKeyStatus() {
+        if KeychainService.getAPIKey(service: "com.hummingbird.claude") != nil {
+            apiKeyStatus = .available
+        } else {
+            apiKeyStatus = .missing
+        }
+    }
+    
+    // Setup initial API key for development (should be removed in production)
+    func setupInitialAPIKeyIfNeeded() {
+        #if DEBUG
+        // Only set up the key for development if it's not already set
+        if KeychainService.getAPIKey(service: "com.hummingbird.claude") == nil {
+            // Use the run-time prompt for setting up the API key instead of hardcoding
+            showAPIKeySetupSheet = true
+        }
+        #endif
+    }
+    
+    // Set Claude API key
+    func saveClaudeAPIKey(_ key: String) -> Bool {
+        let success = claudeService.setAPIKey(key)
+        if success {
+            apiKeyStatus = .available
+        }
+        return success
     }
     
     private func configureAppearance() {
