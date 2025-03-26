@@ -7,7 +7,7 @@ struct ContentView: View {
         NavigationStack {
             Group {
                 if userViewModel.isAuthenticated {
-                    WelcomeView()
+                    MainTabView()
                 } else {
                     LoginView()
                 }

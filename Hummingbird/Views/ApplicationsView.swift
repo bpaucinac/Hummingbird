@@ -5,17 +5,12 @@ struct ApplicationsView: View {
     @EnvironmentObject var securityViewModel: SecurityViewModel
     
     private let columns = [
-        GridItem(.adaptive(minimum: 170), spacing: 16)
+        GridItem(.adaptive(minimum: 160), spacing: 16)
     ]
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Application Folder")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
-                
+            VStack(alignment: .leading, spacing: 24) {
                 LazyVGrid(columns: columns, spacing: 16) {
                     NavigationLink(destination: SecuritiesView()
                         .environmentObject(securityViewModel)
@@ -25,7 +20,7 @@ struct ApplicationsView: View {
                         ApplicationCard(
                             title: "Securities",
                             description: "Market data and securities",
-                            iconName: "chart.bar.fill",
+                            iconName: "chart.bar",
                             color: .accentColor
                         )
                     }
@@ -34,7 +29,7 @@ struct ApplicationsView: View {
                     ApplicationCard(
                         title: "Portfolio",
                         description: "Track your holdings",
-                        iconName: "briefcase.fill",
+                        iconName: "briefcase",
                         color: .green
                     )
                     .opacity(0.6)
@@ -42,7 +37,7 @@ struct ApplicationsView: View {
                     ApplicationCard(
                         title: "News",
                         description: "Financial news",
-                        iconName: "newspaper.fill",
+                        iconName: "newspaper",
                         color: .orange
                     )
                     .opacity(0.6)
@@ -57,6 +52,7 @@ struct ApplicationsView: View {
                 }
                 .padding()
             }
+            .padding(.top)
         }
     }
 }
@@ -71,8 +67,11 @@ struct ApplicationCard: View {
         VStack(alignment: .leading) {
             HStack {
                 Image(systemName: iconName)
-                    .font(.largeTitle)
+                    .font(.title)
+                    .fontWeight(.medium)
                     .foregroundColor(color)
+                    .frame(width: 44, height: 44)
+                    .accessibilityHidden(true)
                 Spacer()
             }
             
@@ -80,17 +79,21 @@ struct ApplicationCard: View {
             
             Text(title)
                 .font(.headline)
-                .foregroundColor(.primary)
+                .foregroundStyle(.primary)
+                .lineLimit(1)
             
             Text(description)
-                .font(.caption)
-                .foregroundColor(.secondary)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
                 .lineLimit(2)
         }
         .padding()
-        .frame(height: 150)
+        .frame(height: 160)
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .contentShape(Rectangle()) // Ensures the entire card is tappable
+        .frame(minWidth: 44, minHeight: 44) // Minimum touch target size
     }
 }
 
@@ -113,7 +116,7 @@ struct SecuritiesView: View {
                 
                 if securityViewModel.securities.isEmpty && !securityViewModel.isLoading {
                     ContentUnavailableView {
-                        Label("No Securities", systemImage: "chart.bar.fill")
+                        Label("No Securities", systemImage: "chart.bar")
                     } description: {
                         Text("Pull to refresh or try again later")
                     }
@@ -185,12 +188,12 @@ struct SecurityCard: View {
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
+                        .frame(width: 44, height: 44)
                 } placeholder: {
                     ZStack {
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
                             .fill(Color.accentColor.opacity(0.2))
-                            .frame(width: 40, height: 40)
+                            .frame(width: 44, height: 44)
                         
                         Text(security.shortName.prefix(1))
                             .font(.system(size: 20, weight: .semibold, design: .rounded))
@@ -215,7 +218,7 @@ struct SecurityCard: View {
                     
                     HStack(spacing: 2) {
                         Text(viewModel.formatReturn(security.latestPrice?.totalReturn))
-                            .font(.caption)
+                            .font(.subheadline)
                             .foregroundStyle(security.latestPrice?.totalReturn ?? 0 >= 0 ? .green : .red)
                     }
                 }
@@ -230,7 +233,7 @@ struct SecurityCard: View {
                         .foregroundStyle(.secondary)
                     
                     Text(security.sectorName)
-                        .font(.caption2)
+                        .font(.subheadline)
                 }
                 
                 Spacer()
@@ -241,13 +244,15 @@ struct SecurityCard: View {
                         .foregroundStyle(.secondary)
                     
                     Text(viewModel.formatMarketCap(security.latestMktCap?.localCurrencyConsolidatedMarketValue))
-                        .font(.caption2)
+                        .font(.subheadline)
                 }
             }
         }
         .padding()
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .contentShape(Rectangle())
     }
 }
 

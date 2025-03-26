@@ -9,7 +9,6 @@ struct HummingbirdApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .tint(Color("AccentColor"))
                 .environmentObject(appConfiguration)
         }
     }
@@ -25,19 +24,50 @@ final class AppConfiguration: ObservableObject {
     private func configureAppearance() {
         let accent = UIColor(named: "AccentColor") ?? .systemBlue
         
-        let appearance = UITabBarAppearance()
-        appearance.configureWithDefaultBackground()
-        appearance.stackedLayoutAppearance.selected.iconColor = accent
-        appearance.stackedLayoutAppearance.normal.iconColor = .systemGray
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
+        // Configure Tab Bar appearance
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithDefaultBackground()
         
+        // Regular tab bar appearance
+        tabBarAppearance.backgroundColor = .systemBackground
+        tabBarAppearance.shadowColor = .clear
+        
+        // Stack layout (icon and title)
+        tabBarAppearance.stackedLayoutAppearance.selected.iconColor = accent
+        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: accent]
+        tabBarAppearance.stackedLayoutAppearance.normal.iconColor = .systemGray
+        
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+        
+        // Configure Navigation Bar appearance
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithDefaultBackground()
-        navAppearance.titleTextAttributes = [.foregroundColor: UIColor.label]
-        navAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        navAppearance.backgroundColor = .systemBackground
+        
+        // Title text attributes
+        navAppearance.titleTextAttributes = [
+            .foregroundColor: UIColor.label,
+            .font: UIFont.systemFont(ofSize: 17, weight: .semibold)
+        ]
+        
+        // Large title text attributes
+        navAppearance.largeTitleTextAttributes = [
+            .foregroundColor: UIColor.label,
+            .font: UIFont.systemFont(ofSize: 34, weight: .bold)
+        ]
+        
+        // Set appearances for all states
         UINavigationBar.appearance().standardAppearance = navAppearance
+        UINavigationBar.appearance().compactAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
         UINavigationBar.appearance().tintColor = accent
+        
+        // Configure list appearance
+        UITableView.appearance().backgroundColor = .systemGroupedBackground
+        UITableViewCell.appearance().backgroundColor = .secondarySystemGroupedBackground
+        
+        // For iOS 15+, we can use button styles in SwiftUI instead of UIKit configuration
+        // If needed, additional button customization can be done in individual views
     }
 } 
