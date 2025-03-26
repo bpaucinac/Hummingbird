@@ -9,6 +9,7 @@ struct MainTabView: View {
     
     var body: some View {
         TabView {
+            // AI Assistant Tab
             NavigationStack {
                 AssistantView()
                     .navigationTitle("Assistant")
@@ -19,14 +20,35 @@ struct MainTabView: View {
                 Label("Assistant", systemImage: "bubble.left.fill")
             }
             
+            // Notifications Tab
             NavigationStack {
-                ApplicationsView()
+                NotificationsView()
+                    .navigationTitle("Notifications")
+            }
+            .tabItem {
+                Label("Notifications", systemImage: "bell.fill")
+            }
+            
+            // Markets Tab
+            NavigationStack {
+                MarketsView()
                     .navigationTitle("Markets")
             }
             .tabItem {
                 Label("Markets", systemImage: "chart.line.uptrend.xyaxis")
             }
             
+            // Applications Folder Tab
+            NavigationStack {
+                ApplicationsFolderView()
+                    .navigationTitle("Applications")
+                    .environmentObject(securityViewModel)
+            }
+            .tabItem {
+                Label("Applications", systemImage: "folder.fill")
+            }
+            
+            // Settings Tab
             NavigationStack {
                 SettingsView()
                     .navigationTitle("Settings")
@@ -51,6 +73,7 @@ struct MainTabView: View {
     }
 }
 
+// MARK: - Assistant View
 struct AssistantView: View {
     @EnvironmentObject var assistantViewModel: AssistantViewModel
     @EnvironmentObject var appConfiguration: AppConfiguration
@@ -219,56 +242,7 @@ struct AssistantView: View {
     }
 }
 
-struct MessageView: View {
-    let message: Message
-    
-    private var isUser: Bool {
-        message.role == .user
-    }
-    
-    var body: some View {
-        HStack(alignment: .top) {
-            if isUser {
-                Spacer(minLength: 60)
-            } else {
-                Image(systemName: "bubble.left.fill")
-                    .foregroundColor(.accentColor)
-                    .frame(width: 24, height: 24)
-                    .padding(.top, 4)
-            }
-            
-            VStack(alignment: isUser ? .trailing : .leading) {
-                Text(message.content)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(isUser ? Color.accentColor : Color(.systemGray6))
-                    .foregroundColor(isUser ? .white : .primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                
-                Text(formatTimestamp(message.timestamp))
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 4)
-            }
-            
-            if isUser {
-                Image(systemName: "person.circle.fill")
-                    .foregroundColor(.accentColor)
-                    .frame(width: 24, height: 24)
-                    .padding(.top, 4)
-            } else {
-                Spacer(minLength: 60)
-            }
-        }
-    }
-    
-    private func formatTimestamp(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
-}
-
+// MARK: - Notifications View
 struct NotificationsView: View {
     var body: some View {
         List {
@@ -320,6 +294,7 @@ struct NotificationsView: View {
     }
 }
 
+// MARK: - Markets View
 struct MarketsView: View {
     var body: some View {
         List {
@@ -370,8 +345,60 @@ struct MarketItemRow: View {
     }
 }
 
+// MARK: - Message View
+struct MessageView: View {
+    let message: Message
+    
+    private var isUser: Bool {
+        message.role == .user
+    }
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            if isUser {
+                Spacer(minLength: 60)
+            } else {
+                Image(systemName: "bubble.left.fill")
+                    .foregroundColor(.accentColor)
+                    .frame(width: 24, height: 24)
+                    .padding(.top, 4)
+            }
+            
+            VStack(alignment: isUser ? .trailing : .leading) {
+                Text(message.content)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(isUser ? Color.accentColor : Color(.systemGray6))
+                    .foregroundColor(isUser ? .white : .primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                
+                Text(formatTimestamp(message.timestamp))
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 4)
+            }
+            
+            if isUser {
+                Image(systemName: "person.circle.fill")
+                    .foregroundColor(.accentColor)
+                    .frame(width: 24, height: 24)
+                    .padding(.top, 4)
+            } else {
+                Spacer(minLength: 60)
+            }
+        }
+    }
+    
+    private func formatTimestamp(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
+    }
+}
 
 #Preview {
     MainTabView()
         .environmentObject(UserViewModel())
+        .environmentObject(SecurityViewModel())
+        .environmentObject(AppConfiguration())
 } 
