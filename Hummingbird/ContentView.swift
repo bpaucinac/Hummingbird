@@ -1,4 +1,4 @@
-//
+    //
 //  ContentView.swift
 //  Hummingbird
 //
@@ -6,56 +6,34 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @StateObject private var userViewModel = UserViewModel()
+    @AppStorage("hasSeenWelcomeScreen") private var hasSeenWelcomeScreen = false
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        NavigationStack {
+            Group {
+                if userViewModel.isAuthenticated {
+                    // If user has seen the welcome screen before, go directly to main view
+                    if hasSeenWelcomeScreen {
+                        MainTabView()
+                            .environmentObject(userViewModel)
+                    } else {
+                        WelcomeView()
+                            .environmentObject(userViewModel)
                     }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                } else {
+                    LoginView()
+                        .environmentObject(userViewModel)
                 }
             }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+            .animation(.default, value: userViewModel.isAuthenticated)
+            .transition(.opacity)
         }
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
