@@ -1,0 +1,563 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		8B3B04452D93DBA300E0CCBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3B042A2D93DBA200E0CCBA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B3B04312D93DBA300E0CCBA;
+			remoteInfo = Hummingbird;
+		};
+		8B3B044F2D93DBA300E0CCBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8B3B042A2D93DBA200E0CCBA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8B3B04312D93DBA300E0CCBA;
+			remoteInfo = Hummingbird;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		8B3B04322D93DBA300E0CCBA /* Hummingbird.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hummingbird.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B3B04442D93DBA300E0CCBA /* HummingbirdTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HummingbirdTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B3B044E2D93DBA300E0CCBA /* HummingbirdUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HummingbirdUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		8B3B04342D93DBA300E0CCBA /* Hummingbird */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Hummingbird;
+			sourceTree = "<group>";
+		};
+		8B3B04472D93DBA300E0CCBA /* HummingbirdTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HummingbirdTests;
+			sourceTree = "<group>";
+		};
+		8B3B04512D93DBA300E0CCBA /* HummingbirdUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HummingbirdUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8B3B042F2D93DBA300E0CCBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B3B04412D93DBA300E0CCBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B3B044B2D93DBA300E0CCBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8B3B04292D93DBA200E0CCBA = {
+			isa = PBXGroup;
+			children = (
+				8B3B04342D93DBA300E0CCBA /* Hummingbird */,
+				8B3B04472D93DBA300E0CCBA /* HummingbirdTests */,
+				8B3B04512D93DBA300E0CCBA /* HummingbirdUITests */,
+				8B3B04332D93DBA300E0CCBA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8B3B04332D93DBA300E0CCBA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B3B04322D93DBA300E0CCBA /* Hummingbird.app */,
+				8B3B04442D93DBA300E0CCBA /* HummingbirdTests.xctest */,
+				8B3B044E2D93DBA300E0CCBA /* HummingbirdUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8B3B04312D93DBA300E0CCBA /* Hummingbird */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B3B04582D93DBA300E0CCBA /* Build configuration list for PBXNativeTarget "Hummingbird" */;
+			buildPhases = (
+				8B3B042E2D93DBA300E0CCBA /* Sources */,
+				8B3B042F2D93DBA300E0CCBA /* Frameworks */,
+				8B3B04302D93DBA300E0CCBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8B3B04342D93DBA300E0CCBA /* Hummingbird */,
+			);
+			name = Hummingbird;
+			packageProductDependencies = (
+			);
+			productName = Hummingbird;
+			productReference = 8B3B04322D93DBA300E0CCBA /* Hummingbird.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8B3B04432D93DBA300E0CCBA /* HummingbirdTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B3B045B2D93DBA300E0CCBA /* Build configuration list for PBXNativeTarget "HummingbirdTests" */;
+			buildPhases = (
+				8B3B04402D93DBA300E0CCBA /* Sources */,
+				8B3B04412D93DBA300E0CCBA /* Frameworks */,
+				8B3B04422D93DBA300E0CCBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B3B04462D93DBA300E0CCBA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8B3B04472D93DBA300E0CCBA /* HummingbirdTests */,
+			);
+			name = HummingbirdTests;
+			packageProductDependencies = (
+			);
+			productName = HummingbirdTests;
+			productReference = 8B3B04442D93DBA300E0CCBA /* HummingbirdTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8B3B044D2D93DBA300E0CCBA /* HummingbirdUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B3B045E2D93DBA300E0CCBA /* Build configuration list for PBXNativeTarget "HummingbirdUITests" */;
+			buildPhases = (
+				8B3B044A2D93DBA300E0CCBA /* Sources */,
+				8B3B044B2D93DBA300E0CCBA /* Frameworks */,
+				8B3B044C2D93DBA300E0CCBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8B3B04502D93DBA300E0CCBA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				8B3B04512D93DBA300E0CCBA /* HummingbirdUITests */,
+			);
+			name = HummingbirdUITests;
+			packageProductDependencies = (
+			);
+			productName = HummingbirdUITests;
+			productReference = 8B3B044E2D93DBA300E0CCBA /* HummingbirdUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8B3B042A2D93DBA200E0CCBA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					8B3B04312D93DBA300E0CCBA = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					8B3B04432D93DBA300E0CCBA = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 8B3B04312D93DBA300E0CCBA;
+					};
+					8B3B044D2D93DBA300E0CCBA = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 8B3B04312D93DBA300E0CCBA;
+					};
+				};
+			};
+			buildConfigurationList = 8B3B042D2D93DBA200E0CCBA /* Build configuration list for PBXProject "Hummingbird" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8B3B04292D93DBA200E0CCBA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8B3B04332D93DBA300E0CCBA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8B3B04312D93DBA300E0CCBA /* Hummingbird */,
+				8B3B04432D93DBA300E0CCBA /* HummingbirdTests */,
+				8B3B044D2D93DBA300E0CCBA /* HummingbirdUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8B3B04302D93DBA300E0CCBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B3B04422D93DBA300E0CCBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B3B044C2D93DBA300E0CCBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8B3B042E2D93DBA300E0CCBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B3B04402D93DBA300E0CCBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8B3B044A2D93DBA300E0CCBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8B3B04462D93DBA300E0CCBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B3B04312D93DBA300E0CCBA /* Hummingbird */;
+			targetProxy = 8B3B04452D93DBA300E0CCBA /* PBXContainerItemProxy */;
+		};
+		8B3B04502D93DBA300E0CCBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8B3B04312D93DBA300E0CCBA /* Hummingbird */;
+			targetProxy = 8B3B044F2D93DBA300E0CCBA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		8B3B04562D93DBA300E0CCBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		8B3B04572D93DBA300E0CCBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8B3B04592D93DBA300E0CCBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Hummingbird/Preview Content\"";
+				DEVELOPMENT_TEAM = T83QLT4694;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rs.quantlabs.Hummingbird;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8B3B045A2D93DBA300E0CCBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Hummingbird/Preview Content\"";
+				DEVELOPMENT_TEAM = T83QLT4694;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rs.quantlabs.Hummingbird;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8B3B045C2D93DBA300E0CCBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T83QLT4694;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rs.quantlabs.HummingbirdTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hummingbird.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hummingbird";
+			};
+			name = Debug;
+		};
+		8B3B045D2D93DBA300E0CCBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T83QLT4694;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rs.quantlabs.HummingbirdTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hummingbird.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Hummingbird";
+			};
+			name = Release;
+		};
+		8B3B045F2D93DBA300E0CCBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T83QLT4694;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rs.quantlabs.HummingbirdUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Hummingbird;
+			};
+			name = Debug;
+		};
+		8B3B04602D93DBA300E0CCBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T83QLT4694;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = rs.quantlabs.HummingbirdUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Hummingbird;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8B3B042D2D93DBA200E0CCBA /* Build configuration list for PBXProject "Hummingbird" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B3B04562D93DBA300E0CCBA /* Debug */,
+				8B3B04572D93DBA300E0CCBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B3B04582D93DBA300E0CCBA /* Build configuration list for PBXNativeTarget "Hummingbird" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B3B04592D93DBA300E0CCBA /* Debug */,
+				8B3B045A2D93DBA300E0CCBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B3B045B2D93DBA300E0CCBA /* Build configuration list for PBXNativeTarget "HummingbirdTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B3B045C2D93DBA300E0CCBA /* Debug */,
+				8B3B045D2D93DBA300E0CCBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B3B045E2D93DBA300E0CCBA /* Build configuration list for PBXNativeTarget "HummingbirdUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B3B045F2D93DBA300E0CCBA /* Debug */,
+				8B3B04602D93DBA300E0CCBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8B3B042A2D93DBA200E0CCBA /* Project object */;
+}
