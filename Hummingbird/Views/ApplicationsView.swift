@@ -19,13 +19,14 @@ struct ApplicationsView: View {
                 LazyVGrid(columns: columns, spacing: 16) {
                     NavigationLink(destination: SecuritiesView()
                         .environmentObject(securityViewModel)
+                        .environmentObject(userViewModel)
                         .navigationTitle("Securities")
                     ) {
                         ApplicationCard(
                             title: "Securities",
                             description: "Market data and securities",
                             iconName: "chart.bar.fill",
-                            color: .blue
+                            color: .accentColor
                         )
                     }
                     
@@ -95,54 +96,71 @@ struct ApplicationCard: View {
 
 struct SecuritiesView: View {
     @EnvironmentObject var securityViewModel: SecurityViewModel
+    @EnvironmentObject var userViewModel: UserViewModel
+    @State private var scrollOffset: CGFloat = 0
+    @State private var isRefreshable = false
     
     var body: some View {
         ScrollView {
-            if securityViewModel.securities.isEmpty && !securityViewModel.isLoading {
-                VStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.largeTitle)
-                        .foregroundColor(.yellow)
-                        .padding()
-                    
-                    Text("No securities found")
-                        .font(.headline)
-                    
-                    Text("Please try again later")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .padding()
+            ScrollViewReader { proxy in
+                GeometryReader { geometry in
+                    Color.clear.preference(
+                        key: ScrollOffsetPreferenceKey.self,
+                        value: geometry.frame(in: .named("scroll")).minY
+                    )
                 }
-                .padding()
-            } else {
-                LazyVStack(spacing: 16) {
-                    ForEach(securityViewModel.securities) { security in
-                        SecurityCard(security: security, viewModel: securityViewModel)
-                            .padding(.horizontal)
+                .frame(height: 0)
+                
+                if securityViewModel.securities.isEmpty && !securityViewModel.isLoading {
+                    ContentUnavailableView {
+                        Label("No Securities", systemImage: "chart.bar.fill")
+                    } description: {
+                        Text("Pull to refresh or try again later")
                     }
+                    .padding()
+                } else {
+                    LazyVStack(spacing: 16) {
+                        ForEach(securityViewModel.securities) { security in
+                            SecurityCard(security: security, viewModel: securityViewModel)
+                                .padding(.horizontal)
+                        }
+                    }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
         }
-        .refreshable {
-            Task {
-                await securityViewModel.loadSecurities(token: UserDefaults.standard.string(forKey: "userToken") ?? "")
+        .coordinateSpace(name: "scroll")
+        .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+            scrollOffset = offset
+            // Only enable refresh when pulled down more than 50 points
+            isRefreshable = offset > 50
+        }
+        .refreshable(action: {
+            if isRefreshable {
+                await securityViewModel.loadSecurities(token: userViewModel.token, isRefreshing: true)
+            }
+        })
+        .overlay {
+            if securityViewModel.isLoading {
+                LoadingOverlay(message: "Loading securities...")
             }
         }
-        .loading(securityViewModel.isLoading, message: "Loading securities...")
-        .alert(isPresented: $securityViewModel.showError) {
-            Alert(
-                title: Text("Error"),
-                message: Text(securityViewModel.error ?? "Unknown error"),
-                dismissButton: .default(Text("OK"))
-            )
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .principal) {
-                CustomTabHeader(title: "Securities")
+        .alert("Error", isPresented: $securityViewModel.showError) {
+            Button("OK") {
+                securityViewModel.error = nil
             }
+        } message: {
+            Text(securityViewModel.error ?? "")
         }
+    }
+}
+
+// MARK: - Scroll Offset Preference Key
+private struct ScrollOffsetPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = nextValue()
     }
 }
 
@@ -159,10 +177,15 @@ struct SecurityCard: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 40, height: 40)
                 } placeholder: {
-                    Image(systemName: "building.2.fill")
-                        .font(.title)
-                        .foregroundColor(.blue)
-                        .frame(width: 40, height: 40)
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .fill(Color.accentColor.opacity(0.2))
+                            .frame(width: 40, height: 40)
+                        
+                        Text(security.shortName.prefix(1))
+                            .font(.system(size: 20, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color.accentColor)
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -171,7 +194,7 @@ struct SecurityCard: View {
                     
                     Text(security.ticker)
                         .font(.subheadline)
-                        .foregroundColor(.blue)
+                        .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
@@ -183,7 +206,7 @@ struct SecurityCard: View {
                     HStack(spacing: 2) {
                         Text(viewModel.formatReturn(security.latestPrice?.totalReturn))
                             .font(.caption)
-                            .foregroundColor(security.latestPrice?.totalReturn ?? 0 >= 0 ? .green : .red)
+                            .foregroundStyle(security.latestPrice?.totalReturn ?? 0 >= 0 ? .green : .red)
                     }
                 }
             }
@@ -194,7 +217,7 @@ struct SecurityCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Sector")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     Text(security.sectorName)
                         .font(.caption2)
@@ -205,7 +228,7 @@ struct SecurityCard: View {
                 VStack(alignment: .trailing, spacing: 4) {
                     Text("Market Cap")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                     
                     Text(viewModel.formatMarketCap(security.latestMktCap?.localCurrencyConsolidatedMarketValue))
                         .font(.caption2)
@@ -214,12 +237,59 @@ struct SecurityCard: View {
         }
         .padding()
         .background(Color(.systemGray6))
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
-#Preview {
+// MARK: - Preview Helpers
+extension Security {
+    static let preview = Security(
+        id: "AAPL",
+        shortName: "Apple Inc",
+        longName: "Apple Inc.",
+        ticker: "AAPL",
+        assetClass: "Equity",
+        currency: "USD",
+        classifications: [
+            Classification(
+                id: 1,
+                type: "Industry",
+                subType: "Sector",
+                name: "Technology",
+                code: "TECH",
+                effectiveFrom: "2020-01-01",
+                effectiveTo: nil
+            )
+        ],
+        latestPrice: LatestPrice(
+            tradeDate: "2024-03-26",
+            closeFullAdj: 172.45,
+            totalReturn: 12.5
+        ),
+        latestMktCap: LatestMarketCap(
+            localCurrencyConsolidatedMarketValue: 2750000000000.0
+        )
+    )
+}
+
+#Preview("Applications") {
     ApplicationsView()
         .environmentObject(UserViewModel())
         .environmentObject(SecurityViewModel())
+}
+
+#Preview("Securities") {
+    NavigationStack {
+        SecuritiesView()
+            .environmentObject(UserViewModel())
+            .environmentObject(SecurityViewModel())
+    }
+}
+
+#Preview("Security Card") {
+    SecurityCard(
+        security: .preview,
+        viewModel: SecurityViewModel()
+    )
+    .padding()
 } 

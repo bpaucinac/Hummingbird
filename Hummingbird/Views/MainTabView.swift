@@ -9,79 +9,91 @@ struct MainTabView: View {
         TabView {
             NavigationStack {
                 AssistantView()
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitleDisplayMode(.large)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
-                            CustomTabHeader(title: "Assistant")
+                            Text("Assistant")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
                         }
                     }
             }
             .tabItem {
-                Label("Assistant", systemImage: "message.fill")
+                Label("Assistant", systemImage: "bubble.left.and.bubble.right.fill")
             }
             
             NavigationStack {
                 NotificationsView()
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitleDisplayMode(.large)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
-                            CustomTabHeader(title: "Notifications")
+                            Text("Notifications")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
                         }
                     }
             }
             .tabItem {
-                Label("Notifications", systemImage: "bell.fill")
+                Label("Notifications", systemImage: "bell.badge.fill")
             }
+            .badge(2) // Example badge, adjust based on actual notifications
             
             NavigationStack {
                 MarketsView()
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitleDisplayMode(.large)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
-                            CustomTabHeader(title: "Markets")
+                            Text("Markets")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
                         }
                     }
             }
             .tabItem {
-                Label("Markets", systemImage: "chart.line.uptrend.xyaxis")
+                Label("Markets", systemImage: "chart.xyaxis.line")
             }
             
             NavigationStack {
                 ApplicationsView()
                     .environmentObject(userViewModel)
                     .environmentObject(securityViewModel)
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitleDisplayMode(.large)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
-                            CustomTabHeader(title: "Applications")
+                            Text("Applications")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
                         }
                     }
             }
             .tabItem {
-                Label("Applications", systemImage: "folder.fill")
+                Label("Applications", systemImage: "doc.text.fill")
             }
             
             NavigationStack {
                 SettingsView()
                     .environmentObject(userViewModel)
-                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationBarTitleDisplayMode(.large)
                     .toolbar {
                         ToolbarItem(placement: .principal) {
-                            CustomTabHeader(title: "Settings")
+                            Text("Settings")
+                                .font(.headline)
+                                .foregroundStyle(.primary)
                         }
                     }
             }
             .tabItem {
-                Label("Settings", systemImage: "gear")
+                Label("Settings", systemImage: "gearshape.fill")
             }
         }
+        .tint(Color("AccentColor"))
         .onAppear {
             Task {
                 await securityViewModel.loadSecurities(token: userViewModel.token)
             }
         }
-        .onChange(of: userViewModel.isAuthenticated) { isAuthenticated in
-            if !isAuthenticated {
+        .onChange(of: userViewModel.isAuthenticated) { oldValue, newValue in
+            if !newValue {
                 dismiss()
             }
         }
@@ -90,27 +102,46 @@ struct MainTabView: View {
 
 struct AssistantView: View {
     var body: some View {
-        VStack {
-            Text("AI Assistant")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            Image(systemName: "ellipsis.bubble.fill")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 100, height: 100)
-                .foregroundColor(.blue)
-                .padding()
-            
-            Text("Ask me anything about your finances")
-                .font(.headline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding()
-            
-            Spacer()
+        ScrollView {
+            VStack(spacing: 16) {
+                Image(systemName: "bubble.left.and.bubble.right.fill")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 60, height: 60)
+                    .foregroundColor(.accentColor)
+                    .padding(.top, 32)
+                
+                Text("AI Assistant")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.primary)
+                
+                Text("Ask me anything about your finances")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 32)
+                
+                // Chat interface placeholder
+                VStack(spacing: 16) {
+                    ForEach(0..<3) { _ in
+                        MessageBubble()
+                    }
+                }
+                .padding(.horizontal)
+            }
         }
-        .padding()
+    }
+}
+
+struct MessageBubble: View {
+    var body: some View {
+        HStack {
+            Text("Sample message that demonstrates the chat interface")
+                .padding()
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            Spacer(minLength: 60)
+        }
     }
 }
 
@@ -138,7 +169,7 @@ struct MarketsView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 100, height: 100)
-                .foregroundColor(.blue)
+                .foregroundColor(.accentColor)
                 .padding()
             
             Text("Track markets and indices")

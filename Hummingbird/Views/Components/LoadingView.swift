@@ -3,21 +3,28 @@ import SwiftUI
 struct LoadingView: View {
     let message: String
     
-    init(_ message: String = "Loading...") {
-        self.message = message
-    }
-    
     var body: some View {
         VStack(spacing: 16) {
             ProgressView()
-                .scaleEffect(1.5)
+                .controlSize(.large)
             
             Text(message)
-                .font(.headline)
-                .foregroundColor(.secondary)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.opacity(0.05))
+        .background(.background)
+    }
+}
+
+struct LoadingOverlay: View {
+    let message: String
+    
+    var body: some View {
+        LoadingView(message: message)
+            .background(.ultraThinMaterial)
+            .ignoresSafeArea()
     }
 }
 
@@ -32,7 +39,7 @@ struct LoadingViewModifier: ViewModifier {
                 .blur(radius: isLoading ? 2 : 0)
             
             if isLoading {
-                LoadingView(message)
+                LoadingView(message: message)
             }
         }
     }
@@ -45,5 +52,5 @@ extension View {
 }
 
 #Preview {
-    LoadingView("Loading securities...")
+    LoadingView(message: "Loading...")
 } 

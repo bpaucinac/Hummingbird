@@ -1,93 +1,123 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var userViewModel: UserViewModel
+    @EnvironmentObject private var userViewModel: UserViewModel
     @State private var email = ""
     @State private var password = ""
-    @State private var showPassword = false
+    @FocusState private var focusedField: Field?
+    
+    private enum Field: Hashable {
+        case email
+        case password
+    }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Spacer()
-            
-            Image("logo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 120, height: 120)
-            
-            Text("Hummingbird")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.blue)
-            
-            Text("Financial Insights")
-                .font(.headline)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            VStack(spacing: 15) {
-                TextField("Email", text: $email)
-                    .textContentType(.emailAddress)
-                    .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-                
-                HStack {
-                    if showPassword {
-                        TextField("Password", text: $password)
-                            .textContentType(.password)
-                            .autocapitalization(.none)
-                    } else {
-                        SecureField("Password", text: $password)
-                            .textContentType(.password)
-                    }
+        ScrollView {
+            VStack(spacing: 24) {
+                // Logo and Welcome Text
+                VStack(spacing: 16) {
+                    Image("logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 120, height: 120)
                     
-                    Button(action: {
-                        showPassword.toggle()
-                    }) {
-                        Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
-                            .foregroundColor(.secondary)
+                    Text("Welcome Back")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
+                    
+                    Text("Sign in to continue")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 32)
+                
+                // Login Form
+                VStack(spacing: 16) {
+                    TextField("Email", text: $email)
+                        .textContentType(.emailAddress)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
+                        .autocorrectionDisabled()
+                        .focused($focusedField, equals: .email)
+                        .submitLabel(.next)
+                    
+                    SecureField("Password", text: $password)
+                        .textContentType(.password)
+                        .focused($focusedField, equals: .password)
+                        .submitLabel(.go)
+                }
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal)
+                
+                // Login Button
+                Button(action: login) {
+                    if userViewModel.isLoading {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Text("Sign In")
+                            .fontWeight(.semibold)
                     }
                 }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(10)
-            }
-            .padding(.horizontal)
-            
-            Button(action: {
-                Task {
-                    await userViewModel.login(email: email, password: password)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .disabled(email.isEmpty || password.isEmpty || userViewModel.isLoading)
+                
+                // Error Message
+                if let error = userViewModel.error {
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
-            }) {
-                if userViewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                } else {
-                    Text("Sign In")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                
+                Spacer()
+                
+                // Footer
+                VStack(spacing: 16) {
+                    Button("Forgot Password?") {
+                        // Handle forgot password
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    
+                    HStack(spacing: 4) {
+                        Text("Don't have an account?")
+                            .foregroundStyle(.secondary)
+                        Button("Sign Up") {
+                            // Handle sign up
+                        }
+                    }
+                    .font(.subheadline)
                 }
+                .padding(.bottom, 32)
             }
-            .padding(.horizontal)
-            .disabled(userViewModel.isLoading)
-            
-            Spacer()
         }
-        .padding()
-        .alert(isPresented: $userViewModel.showError) {
-            Alert(title: Text("Error"), message: Text(userViewModel.error ?? "An unknown error occurred"), dismissButton: .default(Text("OK")))
+        .scrollDismissesKeyboard(.immediately)
+        .onSubmit {
+            switch focusedField {
+            case .email:
+                focusedField = .password
+            case .password:
+                login()
+            case .none:
+                break
+            }
+        }
+        .alert("Error", isPresented: $userViewModel.showError) {
+            Button("OK") {
+                userViewModel.error = nil
+            }
+        } message: {
+            Text(userViewModel.error ?? "")
+        }
+    }
+    
+    private func login() {
+        Task {
+            await userViewModel.login(email: email, password: password)
         }
     }
 }

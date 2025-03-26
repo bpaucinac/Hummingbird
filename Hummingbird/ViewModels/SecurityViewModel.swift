@@ -1,40 +1,42 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class SecurityViewModel: ObservableObject {
     @Published var securities: [Security] = []
     @Published var isLoading = false
+    @Published var isRefreshing = false
     @Published var error: String?
     @Published var showError = false
     
     private let securityService = SecurityService()
     
-    func loadSecurities(token: String) async {
+    func loadSecurities(token: String, isRefreshing: Bool = false) async {
         if token.isEmpty {
-            DispatchQueue.main.async {
-                self.error = "Authentication token is missing"
-                self.showError = true
-            }
+            error = "Authentication token is missing"
+            showError = true
             return
         }
         
-        DispatchQueue.main.async {
+        if isRefreshing {
+            self.isRefreshing = true
+        } else {
             self.isLoading = true
-            self.error = nil
         }
+        error = nil
         
         do {
             let securities = try await securityService.searchSecurities(token: token)
-            DispatchQueue.main.async {
-                self.securities = securities
-                self.isLoading = false
-            }
+            self.securities = securities
         } catch {
-            DispatchQueue.main.async {
-                self.error = error.localizedDescription
-                self.showError = true
-                self.isLoading = false
-            }
+            self.error = error.localizedDescription
+            showError = true
+        }
+        
+        if isRefreshing {
+            self.isRefreshing = false
+        } else {
+            self.isLoading = false
         }
     }
     

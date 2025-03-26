@@ -21,7 +21,7 @@ struct WelcomeView: View {
             Text(userViewModel.user?.name ?? "User")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(.blue)
+                .foregroundColor(.accentColor)
             
             Spacer()
         }

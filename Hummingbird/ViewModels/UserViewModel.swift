@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 class UserViewModel: ObservableObject {
     @Published var user: User?
     @Published var isAuthenticated = false
@@ -21,34 +22,26 @@ class UserViewModel: ObservableObject {
     }
     
     func login(email: String, password: String) async {
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.error = nil
-        }
+        isLoading = true
+        error = nil
         
         do {
             let user = try await authService.login(email: email, password: password)
             saveUserToKeychain(user)
-            DispatchQueue.main.async {
-                self.user = user
-                self.isAuthenticated = true
-                self.isLoading = false
-            }
+            self.user = user
+            self.isAuthenticated = true
+            isLoading = false
         } catch {
-            DispatchQueue.main.async {
-                self.error = error.localizedDescription
-                self.showError = true
-                self.isLoading = false
-            }
+            self.error = error.localizedDescription
+            showError = true
+            isLoading = false
         }
     }
     
     func logout() {
         removeUserFromKeychain()
-        DispatchQueue.main.async {
-            self.user = nil
-            self.isAuthenticated = false
-        }
+        user = nil
+        isAuthenticated = false
     }
     
     // Method to check if the token is still valid
