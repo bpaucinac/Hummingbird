@@ -10,6 +10,8 @@ class SecurityViewModel: ObservableObject {
     @Published var error: String?
     @Published var showError = false
     @Published var hasMorePages = true
+    @Published var primaryOnly = false
+    @Published var searchCriteria = ""
     
     private let securityService = SecurityService()
     private var currentPage = 1
@@ -34,7 +36,10 @@ class SecurityViewModel: ObservableObject {
             let securities = try await securityService.searchSecurities(
                 token: token,
                 page: currentPage,
-                pageSize: pageSize
+                pageSize: pageSize,
+                criteria: searchCriteria,
+                listedOnly: false,
+                primaryOnly: primaryOnly
             )
             
             if isRefreshing {
@@ -67,7 +72,10 @@ class SecurityViewModel: ObservableObject {
             let newSecurities = try await securityService.searchSecurities(
                 token: token,
                 page: currentPage,
-                pageSize: pageSize
+                pageSize: pageSize,
+                criteria: searchCriteria,
+                listedOnly: false,
+                primaryOnly: primaryOnly
             )
             
             self.securities.append(contentsOf: newSecurities)
@@ -79,6 +87,18 @@ class SecurityViewModel: ObservableObject {
         }
         
         isLoadingMore = false
+    }
+    
+    func togglePrimaryOnly() {
+        primaryOnly.toggle()
+    }
+    
+    func setSearchCriteria(_ criteria: String) {
+        searchCriteria = criteria
+    }
+    
+    func refreshWithCurrentFilters(token: String) async {
+        await loadSecurities(token: token, isRefreshing: true)
     }
     
     func formatPrice(_ price: Double?) -> String {
@@ -93,5 +113,10 @@ class SecurityViewModel: ObservableObject {
     
     func formatMarketCap(_ marketCap: Double?) -> String {
         return Formatters.formatMarketCap(marketCap)
+    }
+    
+    func resetFilters() {
+        primaryOnly = false
+        searchCriteria = ""
     }
 } 

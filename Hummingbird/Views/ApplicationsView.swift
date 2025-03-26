@@ -102,6 +102,7 @@ struct SecuritiesView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     @State private var scrollOffset: CGFloat = 0
     @State private var isRefreshable = false
+    @State private var searchText = ""
     
     var body: some View {
         ScrollView {
@@ -114,31 +115,62 @@ struct SecuritiesView: View {
                 }
                 .frame(height: 0)
                 
-                if securityViewModel.securities.isEmpty && !securityViewModel.isLoading {
-                    ContentUnavailableView {
-                        Label("No Securities", systemImage: "chart.bar")
-                    } description: {
-                        Text("Pull to refresh or try again later")
+                VStack(spacing: 16) {
+                    // Search field
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        TextField("Search securities...", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .onChange(of: searchText) { _, newValue in
+                                securityViewModel.setSearchCriteria(newValue)
+                                Task {
+                                    await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
+                                }
+                            }
                     }
                     .padding()
-                } else {
-                    LazyVStack(spacing: 16) {
-                        ForEach(securityViewModel.securities) { security in
-                            SecurityCard(security: security, viewModel: securityViewModel)
-                                .padding(.horizontal)
-                        }
-                        
-                        if securityViewModel.hasMorePages {
-                            ProgressView()
-                                .padding()
-                                .onAppear {
-                                    Task {
-                                        await securityViewModel.loadMoreSecurities(token: userViewModel.token)
-                                    }
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal)
+                    
+                    // Primary toggle
+                    HStack {
+                        Toggle("Primary Only", isOn: $securityViewModel.primaryOnly)
+                            .padding(.horizontal)
+                            .onChange(of: securityViewModel.primaryOnly) { _, _ in
+                                Task {
+                                    await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
                                 }
-                        }
+                            }
                     }
-                    .padding(.vertical)
+                    
+                    if securityViewModel.securities.isEmpty && !securityViewModel.isLoading {
+                        ContentUnavailableView {
+                            Label("No Securities", systemImage: "chart.bar")
+                        } description: {
+                            Text("Pull to refresh or try again later")
+                        }
+                        .padding()
+                    } else {
+                        LazyVStack(spacing: 16) {
+                            ForEach(securityViewModel.securities) { security in
+                                SecurityCard(security: security, viewModel: securityViewModel)
+                                    .padding(.horizontal)
+                            }
+                            
+                            if securityViewModel.hasMorePages {
+                                ProgressView()
+                                    .padding()
+                                    .onAppear {
+                                        Task {
+                                            await securityViewModel.loadMoreSecurities(token: userViewModel.token)
+                                        }
+                                    }
+                            }
+                        }
+                        .padding(.vertical)
+                    }
                 }
             }
         }
@@ -150,7 +182,7 @@ struct SecuritiesView: View {
         }
         .refreshable(action: {
             if isRefreshable {
-                await securityViewModel.loadSecurities(token: userViewModel.token, isRefreshing: true)
+                await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
             }
         })
         .overlay {
@@ -164,6 +196,16 @@ struct SecuritiesView: View {
             }
         } message: {
             Text(securityViewModel.error ?? "")
+        }
+        .onAppear {
+            // Reset state to defaults
+            searchText = ""
+            securityViewModel.resetFilters()
+            
+            // Refresh with default filters
+            Task {
+                await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
+            }
         }
     }
 }
@@ -283,7 +325,8 @@ extension Security {
         ),
         latestMktCap: LatestMarketCap(
             localCurrencyConsolidatedMarketValue: 2750000000000.0
-        )
+        ),
+        isActive: true
     )
 }
 

@@ -3,6 +3,8 @@ import Foundation
 struct SecuritySearchRequest: Codable {
     let listedOnly: Bool
     let criteria: String
+    let isPrimary: Bool?
+    let isActive: Bool?
 }
 
 struct SecuritySearchResponse: Codable {
@@ -28,6 +30,7 @@ struct Security: Codable, Identifiable {
     let classifications: [Classification]
     let latestPrice: LatestPrice?
     let latestMktCap: LatestMarketCap?
+    let isActive: Bool
     
     var logoURL: URL? {
         return URL(string: "https://storage.googleapis.com/iex/api/logos/\(ticker).png")
