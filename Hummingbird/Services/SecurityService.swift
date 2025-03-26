@@ -31,4 +31,24 @@ class SecurityService {
         let searchResponse = try JSONDecoder().decode(SecuritySearchResponse.self, from: data)
         return searchResponse.value.items
     }
+    
+    func getSecurityDetails(token: String, securityId: String) async throws -> SecurityDetails {
+        guard let url = URL(string: "https://production.hds.kiskisoftware.com/secmaster-api/api/equities/\(securityId)") else {
+            throw NSError(domain: "SecurityService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw NSError(domain: "SecurityService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to fetch security details"])
+        }
+        
+        let detailsResponse = try JSONDecoder().decode(SecurityDetailsResponse.self, from: data)
+        return detailsResponse.value
+    }
 } 

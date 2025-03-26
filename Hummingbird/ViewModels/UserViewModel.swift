@@ -17,6 +17,10 @@ class UserViewModel: ObservableObject {
     // For token validation (in a real app, this would depend on backend rules)
     private let tokenValidityDuration: TimeInterval = 30 * 24 * 60 * 60 // 30 days
     
+    var token: String {
+        user?.token ?? ""
+    }
+    
     init() {
         loadUserFromKeychain()
     }
@@ -98,9 +102,5 @@ class UserViewModel: ObservableObject {
         UserDefaults.standard.removeObject(forKey: tokenKey)
         UserDefaults.standard.removeObject(forKey: lastLoginDateKey)
         UserDefaults.standard.synchronize()
-    }
-    
-    var token: String {
-        return user?.token ?? ""
     }
 } 
