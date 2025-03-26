@@ -7,11 +7,14 @@ struct LoadingView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .controlSize(.large)
+                .scaleEffect(1.5)
+                .tint(.accentColor)
             
             Text(message)
-                .font(.subheadline)
+                .font(.headline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+                .padding(.top, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(.background)
@@ -22,9 +25,19 @@ struct LoadingOverlay: View {
     let message: String
     
     var body: some View {
-        LoadingView(message: message)
-            .background(.ultraThinMaterial)
-            .ignoresSafeArea()
+        ZStack {
+            Color.black.opacity(0.1)
+                .ignoresSafeArea()
+            
+            VStack {
+                LoadingView(message: message)
+                    .padding(24)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 2)
+                    .padding(40)
+            }
+        }
     }
 }
 
@@ -39,7 +52,8 @@ struct LoadingViewModifier: ViewModifier {
                 .blur(radius: isLoading ? 2 : 0)
             
             if isLoading {
-                LoadingView(message: message)
+                LoadingOverlay(message: message)
+                    .transition(.opacity.animation(.easeInOut(duration: 0.2)))
             }
         }
     }
@@ -52,5 +66,10 @@ extension View {
 }
 
 #Preview {
-    LoadingView(message: "Loading...")
+    VStack {
+        Text("Content behind loading overlay")
+            .font(.title)
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .loading(true, message: "Please wait...")
 } 

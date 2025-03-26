@@ -4,96 +4,225 @@ struct ApplicationsView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     @EnvironmentObject var securityViewModel: SecurityViewModel
     
-    private let columns = [
-        GridItem(.adaptive(minimum: 160), spacing: 16)
-    ]
-    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                LazyVGrid(columns: columns, spacing: 16) {
-                    NavigationLink(destination: SecuritiesView()
-                        .environmentObject(securityViewModel)
-                        .environmentObject(userViewModel)
-                        .navigationTitle("Securities")
-                    ) {
-                        ApplicationCard(
-                            title: "Securities",
-                            description: "Market data and securities",
-                            iconName: "chart.bar",
-                            color: .accentColor
+                // Market Overview Section
+                Section {
+                    Text("Market Overview")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .padding(.horizontal)
+                    
+                    VStack(spacing: 12) {
+                        MarketOverviewCard(
+                            title: "S&P 500",
+                            value: "5,254.67",
+                            change: "+0.54%",
+                            isPositive: true
+                        )
+                        
+                        MarketOverviewCard(
+                            title: "Nasdaq",
+                            value: "16,384.45",
+                            change: "+0.34%",
+                            isPositive: true
+                        )
+                        
+                        MarketOverviewCard(
+                            title: "Dow Jones",
+                            value: "39,170.35",
+                            change: "-0.12%",
+                            isPositive: false
                         )
                     }
-                    
-                    // Placeholder for future apps
-                    ApplicationCard(
-                        title: "Portfolio",
-                        description: "Track your holdings",
-                        iconName: "briefcase",
-                        color: .green
-                    )
-                    .opacity(0.6)
-                    
-                    ApplicationCard(
-                        title: "News",
-                        description: "Financial news",
-                        iconName: "newspaper",
-                        color: .orange
-                    )
-                    .opacity(0.6)
-                    
-                    ApplicationCard(
-                        title: "Research",
-                        description: "Analyst reports",
-                        iconName: "doc.text.magnifyingglass",
-                        color: .purple
-                    )
-                    .opacity(0.6)
+                    .padding(.horizontal)
                 }
-                .padding()
+                
+                // Securities Section
+                Section {
+                    HStack {
+                        Text("Securities")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        NavigationLink(destination: SecuritiesView()
+                            .environmentObject(securityViewModel)
+                            .environmentObject(userViewModel)
+                            .navigationTitle("Securities")
+                        ) {
+                            Text("See All")
+                                .foregroundColor(.accentColor)
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(0..<5) { _ in
+                                SecurityPreviewCard()
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+                
+                // News Section
+                Section {
+                    HStack {
+                        Text("Latest News")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        Spacer()
+                        
+                        Button {
+                            // Handle see all action
+                        } label: {
+                            Text("See All")
+                                .foregroundColor(.accentColor)
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    VStack(spacing: 16) {
+                        ForEach(1...3, id: \.self) { index in
+                            NewsCard(
+                                title: "Market update #\(index)",
+                                source: "Financial Times",
+                                timeAgo: "\(index * 2)h ago"
+                            )
+                            .padding(.horizontal)
+                        }
+                    }
+                }
             }
-            .padding(.top)
+            .padding(.vertical)
         }
     }
 }
 
-struct ApplicationCard: View {
-    var title: String
-    var description: String
-    var iconName: String
-    var color: Color
+struct MarketOverviewCard: View {
+    let title: String
+    let value: String
+    let change: String
+    let isPositive: Bool
     
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Image(systemName: iconName)
-                    .font(.title)
-                    .fontWeight(.medium)
-                    .foregroundColor(color)
-                    .frame(width: 44, height: 44)
-                    .accessibilityHidden(true)
-                Spacer()
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .lineLimit(1)
             }
             
             Spacer()
             
-            Text(title)
-                .font(.headline)
-                .foregroundStyle(.primary)
-                .lineLimit(1)
-            
-            Text(description)
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(value)
+                    .font(.headline)
+                
+                HStack(spacing: 4) {
+                    Image(systemName: isPositive ? "arrow.up.right" : "arrow.down.right")
+                    Text(change)
+                }
+                .foregroundColor(isPositive ? .success : .error)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+            }
         }
         .padding()
-        .frame(height: 160)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .contentShape(Rectangle()) // Ensures the entire card is tappable
-        .frame(minWidth: 44, minHeight: 44) // Minimum touch target size
+        .frame(maxWidth: .infinity)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
+    }
+}
+
+struct SecurityPreviewCard: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.accentColor.opacity(0.1))
+                        .frame(width: 44, height: 44)
+                    
+                    Text("A")
+                        .font(.headline)
+                        .foregroundColor(.accentColor)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("AAPL")
+                        .font(.headline)
+                    
+                    Text("Apple Inc.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+            }
+            
+            Divider()
+            
+            HStack {
+                Text("$198.45")
+                    .font(.headline)
+                
+                Spacer()
+                
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up.right")
+                    Text("+1.2%")
+                }
+                .foregroundColor(.success)
+                .font(.subheadline)
+            }
+        }
+        .padding()
+        .frame(width: 220, height: 140)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
+    }
+}
+
+struct NewsCard: View {
+    let title: String
+    let source: String
+    let timeAgo: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            Image(systemName: "newspaper.fill")
+                .foregroundColor(.accentColor)
+                .frame(width: 44, height: 44)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .lineLimit(2)
+                
+                HStack {
+                    Text(source)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Text(timeAgo)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(12)
     }
 }
 

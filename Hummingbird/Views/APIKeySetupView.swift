@@ -10,31 +10,79 @@ struct APIKeySetupView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Claude API Key")) {
+                Section {
                     SecureField("Enter your API key", text: $apiKey)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
+                        .frame(minHeight: 44)
+                } header: {
+                    Text("API Key")
+                } footer: {
+                    Text("Your API key will be stored securely in the Keychain.")
                 }
                 
-                Section(header: Text("Instructions"), footer: Text("Your API key will be stored securely in the Keychain.")) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("1. Get your API key from your Anthropic account")
-                        Text("2. Enter the key in the field above")
-                        Text("3. Tap Save to store it securely")
+                Section {
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "1.circle.fill")
+                                .foregroundColor(.accentColor)
+                                .font(.title3)
+                            Text("Get your API key from your account")
+                                .font(.subheadline)
+                        }
                         
-                        Link("Get Claude API Key", destination: URL(string: "https://console.anthropic.com/keys")!)
-                            .padding(.top, 8)
+                        HStack(spacing: 12) {
+                            Image(systemName: "2.circle.fill")
+                                .foregroundColor(.accentColor)
+                                .font(.title3)
+                            Text("Enter the key in the field above")
+                                .font(.subheadline)
+                        }
+                        
+                        HStack(spacing: 12) {
+                            Image(systemName: "3.circle.fill")
+                                .foregroundColor(.accentColor)
+                                .font(.title3)
+                            Text("Tap Save to store it securely")
+                                .font(.subheadline)
+                        }
+                        
+                        Divider()
+                            .padding(.vertical, 8)
+                        
+                        Link(destination: URL(string: "https://hummingbird.app/api-keys")!) {
+                            HStack {
+                                Image(systemName: "arrow.up.right.square")
+                                Text("Get API Key")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .foregroundColor(.accentColor)
+                        .frame(minHeight: 44)
                     }
                     .padding(.vertical, 8)
+                } header: {
+                    Text("Instructions")
                 }
                 
-                Button("Save API Key") {
-                    saveKey()
+                Section {
+                    Button {
+                        saveKey()
+                    } label: {
+                        Text("Save API Key")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .disabled(apiKey.isEmpty)
+                    .listRowBackground(Color.accentColor.opacity(apiKey.isEmpty ? 0.3 : 1.0))
+                    .foregroundColor(apiKey.isEmpty ? .gray : .white)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
-                .disabled(apiKey.isEmpty)
             }
-            .navigationTitle("Set Up Claude AI")
+            .navigationTitle("Set Up API")
             .alert("Error", isPresented: $showingError) {
                 Button("OK") { }
             } message: {
@@ -45,6 +93,7 @@ struct APIKeySetupView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .frame(minWidth: 44, minHeight: 44)
                 }
             }
         }
@@ -52,9 +101,9 @@ struct APIKeySetupView: View {
     
     private func saveKey() {
         // Validate the API key format (basic check)
-        if !apiKey.hasPrefix("sk-ant-api") {
+        if apiKey.isEmpty {
             showingError = true
-            errorMessage = "Invalid API key format. Claude API keys start with sk-ant-api."
+            errorMessage = "API key cannot be empty."
             return
         }
         

@@ -18,11 +18,11 @@ struct LoginView: View {
                 Image("logo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 120, height: 120)
+                    .frame(width: 80, height: 80)
                     .accessibilityHidden(true)
                 
                 Text("Hummingbird")
-                    .font(.title)
+                    .font(.largeTitle)
                     .fontWeight(.bold)
                 
                 Text("Sign in to continue")
@@ -37,34 +37,48 @@ struct LoginView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Email")
                         .font(.subheadline)
+                        .fontWeight(.medium)
                         .foregroundStyle(.secondary)
                     
-                    TextField("name@example.com", text: $email)
-                        .textContentType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.emailAddress)
-                        .autocorrectionDisabled()
-                        .focused($focusedField, equals: .email)
-                        .submitLabel(.next)
-                        .padding()
-                        .frame(height: 50)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    HStack {
+                        Image(systemName: "envelope.fill")
+                            .foregroundColor(.secondary)
+                            .frame(width: 20)
+                        
+                        TextField("name@example.com", text: $email)
+                            .textContentType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .keyboardType(.emailAddress)
+                            .autocorrectionDisabled()
+                            .focused($focusedField, equals: .email)
+                            .submitLabel(.next)
+                    }
+                    .padding()
+                    .frame(height: 56)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Password")
                         .font(.subheadline)
+                        .fontWeight(.medium)
                         .foregroundStyle(.secondary)
                     
-                    SecureField("Enter your password", text: $password)
-                        .textContentType(.password)
-                        .focused($focusedField, equals: .password)
-                        .submitLabel(.go)
-                        .padding()
-                        .frame(height: 50)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                    HStack {
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.secondary)
+                            .frame(width: 20)
+                        
+                        SecureField("Enter your password", text: $password)
+                            .textContentType(.password)
+                            .focused($focusedField, equals: .password)
+                            .submitLabel(.go)
+                    }
+                    .padding()
+                    .frame(height: 56)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }
             .padding(.horizontal, 24)
@@ -81,43 +95,51 @@ struct LoginView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
+            .tint(.accentColor)
             .controlSize(.large)
-            .frame(height: 50)
+            .frame(height: 56)
             .padding(.horizontal, 24)
             .disabled(email.isEmpty || password.isEmpty || userViewModel.isLoading)
             
             // Error Message
             if let error = userViewModel.error {
-                Text(error)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(Color.error)
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(Color.error)
+                }
+                .padding(.horizontal)
             }
             
             Spacer()
             
             // Footer
             VStack(spacing: 16) {
-                Button("Forgot Password?") {
+                Button {
                     // Handle forgot password
+                } label: {
+                    Text("Forgot Password?")
+                        .font(.subheadline)
+                        .foregroundColor(.accentColor)
+                        .frame(minWidth: 44, minHeight: 44)
                 }
-                .font(.subheadline)
-                .foregroundColor(.accentColor)
-                .padding()
-                .frame(minWidth: 44, minHeight: 44)
                 
                 HStack(spacing: 4) {
                     Text("Don't have an account?")
                         .foregroundStyle(.secondary)
-                    Button("Sign Up") {
+                    Button {
                         // Handle sign up
+                    } label: {
+                        Text("Sign Up")
+                            .foregroundColor(.accentColor)
+                            .fontWeight(.semibold)
+                            .frame(minWidth: 44, minHeight: 44)
                     }
-                    .foregroundColor(.accentColor)
-                    .fontWeight(.semibold)
                 }
                 .font(.subheadline)
-                .padding(.bottom, 16)
+                .padding(.bottom, 20)
             }
         }
         .onSubmit {

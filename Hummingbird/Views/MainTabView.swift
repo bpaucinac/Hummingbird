@@ -16,31 +16,15 @@ struct MainTabView: View {
                     .environmentObject(appConfiguration)
             }
             .tabItem {
-                Label("Assistant", systemImage: "bubble.left.and.bubble.right")
+                Label("Assistant", systemImage: "bubble.left.fill")
             }
             
             NavigationStack {
                 ApplicationsView()
-                    .navigationTitle("Applications")
-            }
-            .tabItem {
-                Label("Apps", systemImage: "square.grid.2x2")
-            }
-            
-            NavigationStack {
-                MarketsView()
                     .navigationTitle("Markets")
             }
             .tabItem {
-                Label("Markets", systemImage: "chart.xyaxis.line")
-            }
-            
-            NavigationStack {
-                NotificationsView()
-                    .navigationTitle("Notifications")
-            }
-            .tabItem {
-                Label("Notifications", systemImage: "bell")
+                Label("Markets", systemImage: "chart.line.uptrend.xyaxis")
             }
             
             NavigationStack {
@@ -52,6 +36,7 @@ struct MainTabView: View {
                 Label("Settings", systemImage: "gear")
             }
         }
+        .accentColor(.accentColor)
         .onAppear {
             // Load initial data
             Task {
@@ -81,7 +66,7 @@ struct AssistantView: View {
                         if assistantViewModel.currentConversation.messages.isEmpty {
                             // Welcome screen when no messages
                             VStack(spacing: 20) {
-                                Image(systemName: "bubble.left.and.bubble.right")
+                                Image(systemName: "bubble.left.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 60, height: 60)
@@ -89,11 +74,11 @@ struct AssistantView: View {
                                     .padding(.top, 32)
                                     .accessibilityHidden(true)
                                 
-                                Text("Claude AI Assistant")
+                                Text("Financial Assistant")
                                     .font(.title)
                                     .fontWeight(.bold)
                                 
-                                Text("Ask me anything about your finances")
+                                Text("Ask me anything about finance and markets")
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
                                     .padding(.bottom, 16)
@@ -105,11 +90,18 @@ struct AssistantView: View {
                                             messageText = question
                                             sendMessage()
                                         } label: {
-                                            Text(question)
-                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                .padding()
-                                                .background(Color(.systemGray6))
-                                                .cornerRadius(12)
+                                            HStack {
+                                                Image(systemName: "text.bubble")
+                                                    .foregroundColor(.accentColor)
+                                                Text(question)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                                Spacer()
+                                                Image(systemName: "arrow.forward.circle.fill")
+                                                    .foregroundColor(.accentColor)
+                                            }
+                                            .padding()
+                                            .background(Color(.systemGray6))
+                                            .cornerRadius(12)
                                         }
                                         .buttonStyle(.plain)
                                     }
@@ -165,15 +157,15 @@ struct AssistantView: View {
             if let error = assistantViewModel.error, assistantViewModel.showError {
                 Text(error)
                     .font(.footnote)
-                    .foregroundColor(.red)
+                    .foregroundColor(Color.red)
                     .padding(.horizontal)
                     .padding(.top, 4)
             }
             
             // Input field
             HStack(spacing: 12) {
-                TextField("Message Claude...", text: $messageText, axis: .vertical)
-                    .padding(12)
+                TextField("Ask a question...", text: $messageText, axis: .vertical)
+                    .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
                     .background(Color(.systemGray6))
                     .cornerRadius(20)
                     .focused($isTextFieldFocused)
@@ -184,16 +176,17 @@ struct AssistantView: View {
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .resizable()
-                        .frame(width: 30, height: 30)
-                        .foregroundColor(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing ? .gray : .accentColor)
+                        .frame(width: 44, height: 44)
+                        .foregroundColor(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing ? .secondary : .accentColor)
                 }
                 .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing)
+                .frame(width: 44, height: 44)
             }
             .padding()
             .background(Color(.systemBackground))
             .overlay(
                 Rectangle()
-                    .frame(height: 1)
+                    .frame(height: 0.5)
                     .foregroundColor(Color(.systemGray5)),
                 alignment: .top
             )
@@ -206,14 +199,7 @@ struct AssistantView: View {
                     isTextFieldFocused = false
                 } label: {
                     Image(systemName: "square.and.pencil")
-                }
-            }
-            
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    appConfiguration.showAPIKeySetupSheet = true
-                } label: {
-                    Image(systemName: "key")
+                        .frame(width: 44, height: 44)
                 }
             }
         }
@@ -244,6 +230,11 @@ struct MessageView: View {
         HStack(alignment: .top) {
             if isUser {
                 Spacer(minLength: 60)
+            } else {
+                Image(systemName: "bubble.left.fill")
+                    .foregroundColor(.accentColor)
+                    .frame(width: 24, height: 24)
+                    .padding(.top, 4)
             }
             
             VStack(alignment: isUser ? .trailing : .leading) {
@@ -260,7 +251,12 @@ struct MessageView: View {
                     .padding(.horizontal, 4)
             }
             
-            if !isUser {
+            if isUser {
+                Image(systemName: "person.circle.fill")
+                    .foregroundColor(.accentColor)
+                    .frame(width: 24, height: 24)
+                    .padding(.top, 4)
+            } else {
                 Spacer(minLength: 60)
             }
         }
@@ -374,74 +370,6 @@ struct MarketItemRow: View {
     }
 }
 
-struct SettingsView: View {
-    @EnvironmentObject var userViewModel: UserViewModel
-    @State private var showSignOutConfirmation = false
-    
-    var body: some View {
-        List {
-            Section {
-                HStack(spacing: 16) {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 60, height: 60)
-                        .foregroundColor(.accentColor)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(userViewModel.user?.name ?? "User")
-                            .font(.headline)
-                        
-                        Text(userViewModel.user?.email ?? "Email")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
-                }
-                .padding(.vertical, 8)
-            }
-            
-            Section {
-                NavigationLink(destination: Text("Account Settings")) {
-                    Label("Account", systemImage: "person")
-                }
-                .frame(height: 44)
-                
-                NavigationLink(destination: Text("Notification Settings")) {
-                    Label("Notifications", systemImage: "bell")
-                }
-                .frame(height: 44)
-                
-                NavigationLink(destination: Text("Appearance Settings")) {
-                    Label("Appearance", systemImage: "paintbrush")
-                }
-                .frame(height: 44)
-            }
-            
-            Section {
-                Button(action: {
-                    showSignOutConfirmation = true
-                }) {
-                    HStack {
-                        Text("Sign Out")
-                            .foregroundColor(.red)
-                        Spacer()
-                        Image(systemName: "arrow.right.circle")
-                            .foregroundColor(.red)
-                    }
-                }
-                .frame(height: 44)
-            }
-        }
-        .listStyle(.insetGrouped)
-        .alert("Sign Out", isPresented: $showSignOutConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Sign Out", role: .destructive) {
-                userViewModel.logout()
-            }
-        } message: {
-            Text("Are you sure you want to sign out?")
-        }
-    }
-}
 
 #Preview {
     MainTabView()

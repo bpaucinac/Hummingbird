@@ -11,16 +11,15 @@ struct ContentView: View {
                 if userViewModel.isAuthenticated {
                     MainTabView()
                         .environmentObject(securityViewModel)
+                        .environmentObject(userViewModel)
                         .environmentObject(appConfiguration)
                 } else {
                     LoginView()
+                        .environmentObject(userViewModel)
                 }
             }
-            .environmentObject(userViewModel)
         }
-        .sheet(isPresented: $appConfiguration.showAPIKeySetupSheet) {
-            APIKeySetupView()
-        }
+        .tint(.accentColor)
     }
 }
 
