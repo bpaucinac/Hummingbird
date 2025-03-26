@@ -124,6 +124,16 @@ struct SecuritiesView: View {
                             SecurityCard(security: security, viewModel: securityViewModel)
                                 .padding(.horizontal)
                         }
+                        
+                        if securityViewModel.hasMorePages {
+                            ProgressView()
+                                .padding()
+                                .onAppear {
+                                    Task {
+                                        await securityViewModel.loadMoreSecurities(token: userViewModel.token)
+                                    }
+                                }
+                        }
                     }
                     .padding(.vertical)
                 }

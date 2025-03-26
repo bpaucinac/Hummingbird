@@ -6,10 +6,14 @@ class SecurityViewModel: ObservableObject {
     @Published var securities: [Security] = []
     @Published var isLoading = false
     @Published var isRefreshing = false
+    @Published var isLoadingMore = false
     @Published var error: String?
     @Published var showError = false
+    @Published var hasMorePages = true
     
     private let securityService = SecurityService()
+    private var currentPage = 1
+    private let pageSize = 20
     
     func loadSecurities(token: String, isRefreshing: Bool = false) async {
         if token.isEmpty {
@@ -20,14 +24,27 @@ class SecurityViewModel: ObservableObject {
         
         if isRefreshing {
             self.isRefreshing = true
+            currentPage = 1
         } else {
             self.isLoading = true
         }
         error = nil
         
         do {
-            let securities = try await securityService.searchSecurities(token: token)
-            self.securities = securities
+            let securities = try await securityService.searchSecurities(
+                token: token,
+                page: currentPage,
+                pageSize: pageSize
+            )
+            
+            if isRefreshing {
+                self.securities = securities
+            } else {
+                self.securities = securities
+            }
+            
+            // Update pagination state
+            hasMorePages = !securities.isEmpty && securities.count == pageSize
         } catch {
             self.error = error.localizedDescription
             showError = true
@@ -38,6 +55,30 @@ class SecurityViewModel: ObservableObject {
         } else {
             self.isLoading = false
         }
+    }
+    
+    func loadMoreSecurities(token: String) async {
+        guard hasMorePages, !isLoadingMore else { return }
+        
+        isLoadingMore = true
+        currentPage += 1
+        
+        do {
+            let newSecurities = try await securityService.searchSecurities(
+                token: token,
+                page: currentPage,
+                pageSize: pageSize
+            )
+            
+            self.securities.append(contentsOf: newSecurities)
+            hasMorePages = !newSecurities.isEmpty && newSecurities.count == pageSize
+        } catch {
+            self.error = error.localizedDescription
+            showError = true
+            currentPage -= 1 // Revert page increment on error
+        }
+        
+        isLoadingMore = false
     }
     
     func formatPrice(_ price: Double?) -> String {
