@@ -27,32 +27,38 @@ struct APIKeySetupView: View {
                             Image(systemName: "1.circle.fill")
                                 .foregroundColor(.accentColor)
                                 .font(.title3)
+                                .frame(width: 24, height: 24)
                             Text("Get your API key from your account")
                                 .font(.subheadline)
                         }
+                        .frame(minHeight: 44)
                         
                         HStack(spacing: 12) {
                             Image(systemName: "2.circle.fill")
                                 .foregroundColor(.accentColor)
                                 .font(.title3)
+                                .frame(width: 24, height: 24)
                             Text("Enter the key in the field above")
                                 .font(.subheadline)
                         }
+                        .frame(minHeight: 44)
                         
                         HStack(spacing: 12) {
                             Image(systemName: "3.circle.fill")
                                 .foregroundColor(.accentColor)
                                 .font(.title3)
+                                .frame(width: 24, height: 24)
                             Text("Tap Save to store it securely")
                                 .font(.subheadline)
                         }
+                        .frame(minHeight: 44)
                         
                         Divider()
                             .padding(.vertical, 8)
                         
                         Link(destination: URL(string: "https://hummingbird.app/api-keys")!) {
                             HStack {
-                                Image(systemName: "arrow.up.right.square")
+                                Image(systemName: "arrow.up.forward.app")
                                 Text("Get API Key")
                                 Spacer()
                                 Image(systemName: "chevron.right")
@@ -76,10 +82,10 @@ struct APIKeySetupView: View {
                             .font(.headline)
                             .frame(maxWidth: .infinity, minHeight: 44)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.accentColor)
                     .disabled(apiKey.isEmpty)
-                    .listRowBackground(Color.accentColor.opacity(apiKey.isEmpty ? 0.3 : 1.0))
-                    .foregroundColor(apiKey.isEmpty ? .gray : .white)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .listRowBackground(Color.clear)
                 }
             }
             .navigationTitle("Set Up API")

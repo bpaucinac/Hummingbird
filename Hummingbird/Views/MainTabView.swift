@@ -17,7 +17,7 @@ struct MainTabView: View {
                     .environmentObject(appConfiguration)
             }
             .tabItem {
-                Label("Assistant", systemImage: "bubble.left.fill")
+                Label("Assistant", systemImage: "message.and.waveform.fill")
             }
             
             // Notifications Tab
@@ -26,7 +26,7 @@ struct MainTabView: View {
                     .navigationTitle("Insights")
             }
             .tabItem {
-                Label("Insights", systemImage: "bell.fill")
+                Label("Insights", systemImage: "chart.bar.xaxis")
             }
             
             // Markets Tab
@@ -35,7 +35,7 @@ struct MainTabView: View {
                     .navigationTitle("Markets")
             }
             .tabItem {
-                Label("Markets", systemImage: "chart.line.uptrend.xyaxis")
+                Label("Markets", systemImage: "chart.xyaxis.line")
             }
             
             // Applications Folder Tab
@@ -45,7 +45,7 @@ struct MainTabView: View {
                     .environmentObject(securityViewModel)
             }
             .tabItem {
-                Label("Applications", systemImage: "folder.fill")
+                Label("Applications", systemImage: "square.grid.2x2.fill")
             }
             
             // Settings Tab
@@ -55,7 +55,7 @@ struct MainTabView: View {
                     .environmentObject(userViewModel)
             }
             .tabItem {
-                Label("Settings", systemImage: "gear")
+                Label("Settings", systemImage: "gearshape.fill")
             }
         }
         .accentColor(.accentColor)
@@ -89,7 +89,7 @@ struct AssistantView: View {
                         if assistantViewModel.currentConversation.messages.isEmpty {
                             // Welcome screen when no messages
                             VStack(spacing: 20) {
-                                Image(systemName: "bubble.left.fill")
+                                Image(systemName: "message.and.waveform.fill")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 60, height: 60)
@@ -116,15 +116,17 @@ struct AssistantView: View {
                                             HStack {
                                                 Image(systemName: "text.bubble")
                                                     .foregroundColor(.accentColor)
+                                                    .frame(width: 24, height: 24)
                                                 Text(question)
                                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                                Spacer()
+                                                    .font(.body)
                                                 Image(systemName: "arrow.forward.circle.fill")
                                                     .foregroundColor(.accentColor)
+                                                    .frame(width: 24, height: 24)
                                             }
                                             .padding()
-                                            .background(Color(.systemGray6))
-                                            .cornerRadius(12)
+                                            .background(Color(.secondarySystemGroupedBackground))
+                                            .cornerRadius(16)
                                         }
                                         .buttonStyle(.plain)
                                     }
@@ -178,19 +180,24 @@ struct AssistantView: View {
             
             // Error message
             if let error = assistantViewModel.error, assistantViewModel.showError {
-                Text(error)
-                    .font(.footnote)
-                    .foregroundColor(Color.red)
-                    .padding(.horizontal)
-                    .padding(.top, 4)
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundColor(.red)
+                }
+                .padding(.horizontal)
+                .padding(.top, 4)
             }
             
             // Input field
             HStack(spacing: 12) {
                 TextField("Ask a question...", text: $messageText, axis: .vertical)
                     .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
-                    .background(Color(.systemGray6))
+                    .background(Color(.secondarySystemGroupedBackground))
                     .cornerRadius(20)
+                    .frame(minHeight: 44)
                     .focused($isTextFieldFocused)
                     .disabled(assistantViewModel.isProcessing)
                 
@@ -200,10 +207,10 @@ struct AssistantView: View {
                     Image(systemName: "arrow.up.circle.fill")
                         .resizable()
                         .frame(width: 44, height: 44)
-                        .foregroundColor(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing ? .secondary : .accentColor)
+                        .foregroundColor(.accentColor)
                 }
                 .disabled(messageText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || assistantViewModel.isProcessing)
-                .frame(width: 44, height: 44)
+                .frame(minWidth: 44, minHeight: 44)
             }
             .padding()
             .background(Color(.systemBackground))

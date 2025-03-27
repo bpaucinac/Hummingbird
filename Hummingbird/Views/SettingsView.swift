@@ -8,10 +8,11 @@ struct SettingsView: View {
         List {
             Section {
                 HStack(spacing: 16) {
-                    Image(systemName: "person.circle.fill")
+                    Image(systemName: "person.crop.circle.fill")
                         .resizable()
                         .frame(width: 60, height: 60)
                         .foregroundColor(.accentColor)
+                        .accessibilityHidden(true)
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(userViewModel.user?.name ?? "User")
@@ -27,24 +28,24 @@ struct SettingsView: View {
             
             Section {
                 NavigationLink(destination: Text("Account Settings")) {
-                    Label("Account", systemImage: "person.fill")
+                    Label("Account", systemImage: "person")
                         .frame(minHeight: 44)
                 }
                 
                 NavigationLink(destination: Text("Insights Settings")) {
-                    Label("Insights", systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Insights", systemImage: "chart.bar.fill")
                         .frame(minHeight: 44)
                 }
                 
                 NavigationLink(destination: Text("Appearance Settings")) {
-                    Label("Appearance", systemImage: "paintbrush.fill")
+                    Label("Appearance", systemImage: "paintpalette")
                         .frame(minHeight: 44)
                 }
             }
             
             Section(header: Text("Advanced")) {
                 NavigationLink(destination: APIKeySetupView()) {
-                    Label("API Settings", systemImage: "key.fill")
+                    Label("API Settings", systemImage: "key.horizontal")
                         .frame(minHeight: 44)
                 }
             }
@@ -54,11 +55,9 @@ struct SettingsView: View {
                     showSignOutConfirmation = true
                 }) {
                     HStack {
-                        Text("Sign Out")
+                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.forward")
                             .foregroundColor(Color.red)
                         Spacer()
-                        Image(systemName: "rectangle.portrait.and.arrow.right.fill")
-                            .foregroundColor(Color.red)
                     }
                     .frame(minHeight: 44)
                 }

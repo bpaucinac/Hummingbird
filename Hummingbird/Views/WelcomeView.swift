@@ -49,12 +49,14 @@ struct WelcomeView: View {
                         .frame(height: 56)
                         .background(Color.accentColor)
                         .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
+                .buttonStyle(.plain)
                 .padding(.horizontal, 32)
                 .opacity(animateWelcome ? 1.0 : 0.0)
                 .offset(y: animateWelcome ? 0 : 20)
                 .animation(.easeOut(duration: 0.5).delay(0.6), value: animateWelcome)
+                .accessibilityHint("Tap to continue to the main view")
             }
         }
         .padding()

@@ -9,6 +9,7 @@ struct LoadingView: View {
                 .controlSize(.large)
                 .scaleEffect(1.5)
                 .tint(.accentColor)
+                .frame(minWidth: 44, minHeight: 44)
             
             Text(message)
                 .font(.headline)
@@ -38,6 +39,8 @@ struct LoadingOverlay: View {
                     .padding(40)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Loading \(message)")
     }
 }
 

@@ -43,7 +43,7 @@ struct LoginView: View {
                     HStack {
                         Image(systemName: "envelope.fill")
                             .foregroundColor(.secondary)
-                            .frame(width: 20)
+                            .frame(width: 24, height: 24)
                         
                         TextField("name@example.com", text: $email)
                             .textContentType(.emailAddress)
@@ -52,11 +52,12 @@ struct LoginView: View {
                             .autocorrectionDisabled()
                             .focused($focusedField, equals: .email)
                             .submitLabel(.next)
+                            .frame(minHeight: 44)
                     }
                     .padding()
                     .frame(height: 56)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -68,17 +69,18 @@ struct LoginView: View {
                     HStack {
                         Image(systemName: "lock.fill")
                             .foregroundColor(.secondary)
-                            .frame(width: 20)
+                            .frame(width: 24, height: 24)
                         
                         SecureField("Enter your password", text: $password)
                             .textContentType(.password)
                             .focused($focusedField, equals: .password)
                             .submitLabel(.go)
+                            .frame(minHeight: 44)
                     }
                     .padding()
                     .frame(height: 56)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
             }
             .padding(.horizontal, 24)
@@ -98,6 +100,7 @@ struct LoginView: View {
             .tint(.accentColor)
             .controlSize(.large)
             .frame(height: 56)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal, 24)
             .disabled(email.isEmpty || password.isEmpty || userViewModel.isLoading)
             
@@ -105,10 +108,11 @@ struct LoginView: View {
             if let error = userViewModel.error {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(Color.error)
+                        .foregroundColor(.red)
+                        .frame(width: 20, height: 20)
                     Text(error)
                         .font(.footnote)
-                        .foregroundStyle(Color.error)
+                        .foregroundStyle(.red)
                 }
                 .padding(.horizontal)
             }

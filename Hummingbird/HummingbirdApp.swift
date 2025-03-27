@@ -52,20 +52,26 @@ final class AppConfiguration: ObservableObject {
     }
     
     private func configureAppearance() {
-        // Configure Tab Bar appearance
+        // Configure Tab Bar appearance with system style
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithDefaultBackground()
         
-        // Use system colors for a more native look
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         
-        // Configure Navigation Bar appearance - using system defaults for more consistency
+        // Configure Navigation Bar appearance
         let navAppearance = UINavigationBarAppearance()
         navAppearance.configureWithDefaultBackground()
+        
+        // Apply more rounded corners to navigation bar buttons
+        let buttonAppearance = UIBarButtonItemAppearance(style: .plain)
+        navAppearance.buttonAppearance = buttonAppearance
         
         UINavigationBar.appearance().standardAppearance = navAppearance
         UINavigationBar.appearance().compactAppearance = navAppearance
         UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+        
+        // Set minimum size for interactive elements
+        UIButton.appearance().contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
     }
 } 
