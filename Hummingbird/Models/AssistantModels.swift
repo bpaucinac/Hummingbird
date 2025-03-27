@@ -19,6 +19,15 @@ struct Message: Identifiable, Codable {
         self.timestamp = timestamp
     }
     
+    // Check if the message is using HDS data
+    var isUsingHDSData: Bool {
+        if role == .assistant {
+            return content.starts(with: "According to Hummingbird Data Services (HDS):") || 
+                   content.contains("According to Hummingbird Data Services (HDS),")
+        }
+        return false
+    }
+    
     // Helper method to convert to dictionary for API
     func toDictionary() -> [String: Any] {
         return [

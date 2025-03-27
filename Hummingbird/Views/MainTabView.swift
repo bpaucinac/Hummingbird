@@ -438,10 +438,27 @@ struct MessageView: View {
             if isUser {
                 Spacer(minLength: 60)
             } else {
-                Image(systemName: "bubble.left.fill")
-                    .foregroundColor(.accentColor)
-                    .frame(width: 24, height: 24)
+                // Show different icons based on data source
+                if message.isUsingHDSData {
+                    // Hummingbird logo for HDS data
+                    Image("logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 24, height: 24)
+                        .padding(.top, 4)
+                } else {
+                    // Stylized "C" for Claude
+                    ZStack {
+                        Circle()
+                            .fill(Color.accentColor.opacity(0.2))
+                            .frame(width: 24, height: 24)
+                        
+                        Text("C")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.accentColor)
+                    }
                     .padding(.top, 4)
+                }
             }
             
             VStack(alignment: isUser ? .trailing : .leading) {
@@ -475,8 +492,6 @@ struct MessageView: View {
         return formatter.string(from: date)
     }
 }
-
-
 
 #Preview {
     MainTabView()
