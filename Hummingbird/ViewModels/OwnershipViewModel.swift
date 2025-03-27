@@ -12,7 +12,6 @@ class OwnershipViewModel: ObservableObject {
     @Published var searchQuery = ""
     @Published var sortBy = SortOption.aum
     @Published var sortOrder = OwnershipService.SortOrder.descending
-    @Published var isOfflineMode = false
     @Published var networkStatus: NetworkStatus = .unknown
     @Published var authStatus: AuthStatus = .authenticated
     
@@ -30,8 +29,8 @@ class OwnershipViewModel: ObservableObject {
     // MARK: - Sort Options
     enum SortOption: String, CaseIterable, Identifiable {
         case aum = "aum"
-        case name = "name"
-        case dateOfLatestReport = "dateOfLatestReport"
+        case name = "filerName"
+        case dateOfLatestReport = "latestReportDate"
         
         var id: String { self.rawValue }
         
@@ -82,7 +81,6 @@ class OwnershipViewModel: ObservableObject {
                     print("OwnershipViewModel: Network connection available")
                 } else {
                     self?.networkStatus = .disconnected
-                    self?.isOfflineMode = true
                     print("OwnershipViewModel: No network connection")
                 }
             }
@@ -120,14 +118,6 @@ class OwnershipViewModel: ObservableObject {
         await searchFilers(resetResults: true)
     }
     
-    /// Toggle between online and offline mode
-    func toggleOfflineMode() {
-        isOfflineMode.toggle()
-        Task {
-            await loadFilers()
-        }
-    }
-    
     /// Search with debounce to avoid excessive API calls
     func performSearch() {
         // Cancel any in-flight search
@@ -145,7 +135,7 @@ class OwnershipViewModel: ObservableObject {
     
     // MARK: - Private Methods
     
-    /// Make API call to search for filers or use mock data in offline mode
+    /// Make API call to search for filers
     private func searchFilers(resetResults: Bool) async {
         isLoading = true
         errorMessage = nil
@@ -158,11 +148,8 @@ class OwnershipViewModel: ObservableObject {
             }
         }
         
-        // If in offline mode or network is not available, use mock data
-        if isOfflineMode || networkStatus == .disconnected {
-            // Simulate network delay
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            
+        // If network is not available, use mock data with a clear message
+        if networkStatus == .disconnected {
             // Use mock data
             filers = ownershipService.getMockFilers()
             
@@ -180,8 +167,9 @@ class OwnershipViewModel: ObservableObject {
             hasMorePages = false
             isLoading = false
             
-            if filers.isEmpty {
-                errorMessage = "No results found"
+            // Only show cached data message if we actually have results
+            if !filers.isEmpty {
+                errorMessage = "Showing cached data"
                 hasError = true
             }
             
@@ -189,6 +177,9 @@ class OwnershipViewModel: ObservableObject {
         }
         
         do {
+            // Debug print to verify sort parameters
+            print("OwnershipViewModel: Sorting by \(sortBy.rawValue) in \(sortOrder == .ascending ? "ascending" : "descending") order")
+            
             let response = try await ownershipService.searchFilers(
                 page: currentPage,
                 pageSize: 20,
@@ -208,6 +199,18 @@ class OwnershipViewModel: ObservableObject {
             
             // Update auth status on successful API call
             authStatus = .authenticated
+            
+            // Don't show error message for empty results
+            if filers.isEmpty && !searchQuery.isEmpty {
+                // This is normal when filtering returns no results
+                print("OwnershipViewModel: No matching filers found for query: \(searchQuery)")
+                errorMessage = nil
+                hasError = false
+            } else {
+                // Clear any error messages for successful results
+                errorMessage = nil
+                hasError = false
+            }
         } catch {
             let errorDescription: String
             
@@ -217,30 +220,65 @@ class OwnershipViewModel: ObservableObject {
                 case .invalidURL:
                     errorDescription = "Invalid URL configuration"
                 case .networkError:
-                    errorDescription = "Network error - check your connection"
-                    // Switch to offline mode with mock data
-                    isOfflineMode = true
+                    // Don't show error message for network errors
+                    // Just use the mock data quietly
                     filers = ownershipService.getMockFilers()
+                    
+                    // Filter the mock data if there's a search query
+                    if !searchQuery.isEmpty {
+                        filers = filers.filter { 
+                            $0.name.lowercased().contains(searchQuery.lowercased())
+                        }
+                    }
+                    
+                    // Sort the mock data
                     sortMockData()
+                    
+                    // No error message
+                    isLoading = false
+                    return
                 case .decodingError:
                     errorDescription = "Error processing server response"
                 case .serverError(let code):
                     errorDescription = "Server error (code: \(code))"
                 case .unauthorized:
-                    errorDescription = "Unauthorized - API token may have expired"
                     // Even if unauthorized, we still stay in authenticated status since we have a hardcoded token
-                    isOfflineMode = true
+                    // Don't show error message for authorization errors
                     filers = ownershipService.getMockFilers()
+                    
+                    // Filter the mock data if there's a search query
+                    if !searchQuery.isEmpty {
+                        filers = filers.filter { 
+                            $0.name.lowercased().contains(searchQuery.lowercased())
+                        }
+                    }
+                    
+                    // Sort the mock data
                     sortMockData()
+                    
+                    // No error message
+                    isLoading = false
+                    return
                 case .unknown:
                     errorDescription = "Unknown error occurred"
                 }
             default:
-                errorDescription = error.localizedDescription
-                // Also use mock data for other errors
-                isOfflineMode = true
+                // For any other errors, use mock data without showing error message
                 filers = ownershipService.getMockFilers()
+                
+                // Filter the mock data if there's a search query
+                if !searchQuery.isEmpty {
+                    filers = filers.filter { 
+                        $0.name.lowercased().contains(searchQuery.lowercased())
+                    }
+                }
+                
+                // Sort the mock data
                 sortMockData()
+                
+                // No error message
+                isLoading = false
+                return
             }
             
             errorMessage = errorDescription

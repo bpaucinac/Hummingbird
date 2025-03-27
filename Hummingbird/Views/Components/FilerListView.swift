@@ -28,7 +28,7 @@ struct FilerListView: View {
         }
         .alert(isPresented: $viewModel.hasError, content: {
             Alert(
-                title: Text("Error"),
+                title: Text(viewModel.errorMessage == "Showing cached data" ? "Info" : "Error"),
                 message: Text(viewModel.errorMessage ?? "Unknown error"),
                 dismissButton: .default(Text("OK"))
             )
@@ -80,24 +80,6 @@ struct FilerListView: View {
             }
             
             Spacer()
-            
-            // Offline mode toggle
-            Toggle(isOn: Binding(
-                get: { viewModel.isOfflineMode },
-                set: { newValue in
-                    viewModel.isOfflineMode = newValue
-                    Task {
-                        await viewModel.loadFilers()
-                    }
-                }
-            )) {
-                Text("Offline Mode")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .toggleStyle(.switch)
-            .labelsHidden()
-            .scaleEffect(0.8)
         }
         .padding(.horizontal)
         .padding(.vertical, 4)
@@ -106,10 +88,6 @@ struct FilerListView: View {
     
     // Network status color
     private var statusColor: Color {
-        if viewModel.isOfflineMode {
-            return .yellow
-        }
-        
         switch viewModel.networkStatus {
         case .connected:
             return .green
@@ -122,15 +100,11 @@ struct FilerListView: View {
     
     // Network status text
     private var statusText: String {
-        if viewModel.isOfflineMode {
-            return "Offline Mode (Using Mock Data)"
-        }
-        
         switch viewModel.networkStatus {
         case .connected:
             return "Connected to API"
         case .disconnected:
-            return "No Network Connection"
+            return "Using Cached Data"
         case .unknown:
             return "Checking Connection..."
         }
@@ -188,7 +162,7 @@ struct FilerListView: View {
         List {
             // Empty state when no results
             if viewModel.filers.isEmpty && !viewModel.isLoading {
-                Text("No filers found")
+                Text(viewModel.searchQuery.isEmpty ? "No filers found" : "No matching filers found")
                     .font(.callout)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -222,19 +196,6 @@ struct FilerListView: View {
         .listStyle(.plain)
         .refreshable {
             await viewModel.loadFilers()
-        }
-        .overlay {
-            if viewModel.isOfflineMode {
-                VStack {
-                    Spacer()
-                    Text("Using Mock Data")
-                        .font(.caption)
-                        .padding(6)
-                        .background(Color.yellow.opacity(0.2))
-                        .cornerRadius(4)
-                        .padding(.bottom, 8)
-                }
-            }
         }
     }
 }

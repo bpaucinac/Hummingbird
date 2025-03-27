@@ -99,7 +99,6 @@ struct OwnershipAPISetupView: View {
             
             // Update ViewModel auth status
             viewModel.authStatus = .authenticated
-            viewModel.isOfflineMode = false
             
             // Reload data with the new API key
             Task {

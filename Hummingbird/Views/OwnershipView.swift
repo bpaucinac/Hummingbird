@@ -15,16 +15,6 @@ struct OwnershipView: View {
                         .padding(.leading)
                     
                     Spacer()
-                    
-                    // Toggle offline mode button
-                    Button {
-                        viewModel.toggleOfflineMode()
-                    } label: {
-                        Image(systemName: viewModel.isOfflineMode ? "wifi.slash" : "wifi")
-                            .font(.system(size: 16))
-                            .foregroundColor(.accentColor)
-                            .padding(8)
-                    }
                 }
                 .padding(.bottom, 4)
                 
