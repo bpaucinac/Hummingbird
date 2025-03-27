@@ -173,8 +173,9 @@ struct FilerListView: View {
             ForEach(viewModel.filers) { filer in
                 FilerRowView(filer: filer)
                     .onAppear {
-                        // Load more results when reaching the end of the list
-                        if filer.id == viewModel.filers.last?.id {
+                        // Load more results when approaching the end of the list
+                        // We check if we're within 5 items of the end
+                        if shouldLoadMore(for: filer) {
                             Task {
                                 await viewModel.loadMoreResultsIfNeeded()
                             }
@@ -183,11 +184,29 @@ struct FilerListView: View {
             }
             
             // Loading indicator at bottom of list
-            if viewModel.isLoading {
+            if viewModel.isLoadingNextPage {
                 HStack {
                     Spacer()
-                    ProgressView()
-                        .padding()
+                    VStack(spacing: 8) {
+                        ProgressView()
+                        Text("Loading more filers...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    Spacer()
+                }
+                .listRowSeparator(.hidden)
+            }
+            
+            // End of list indicator when we've reached the last page
+            if !viewModel.hasMorePages && !viewModel.filers.isEmpty && !viewModel.isLoading {
+                HStack {
+                    Spacer()
+                    Text("End of results")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 8)
                     Spacer()
                 }
                 .listRowSeparator(.hidden)
@@ -197,6 +216,20 @@ struct FilerListView: View {
         .refreshable {
             await viewModel.loadFilers()
         }
+    }
+    
+    // Function to determine if we should load more data
+    private func shouldLoadMore(for filer: Filer) -> Bool {
+        guard viewModel.hasMorePages && !viewModel.isLoadingNextPage else { return false }
+        
+        // Get the index of the current filer
+        if let index = viewModel.filers.firstIndex(where: { $0.id == filer.id }) {
+            // Load more when we're 5 items from the end or less
+            let thresholdIndex = viewModel.filers.count - 5
+            return index >= thresholdIndex
+        }
+        
+        return false
     }
 }
 

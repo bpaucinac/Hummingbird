@@ -19,12 +19,14 @@ class OwnershipViewModel: ObservableObject {
     @Published var currentPage = 1
     @Published var totalPages = 1
     @Published var hasMorePages = false
+    @Published var isLoadingNextPage = false
     
     // MARK: - Private Properties
     private let ownershipService = OwnershipService()
     private var searchTask: Task<Void, Never>? = nil
     private let networkMonitor = NWPathMonitor()
     private var monitorQueue = DispatchQueue(label: "NetworkMonitor")
+    private let pageSize = 20
     
     // MARK: - Sort Options
     enum SortOption: String, CaseIterable, Identifiable {
@@ -98,10 +100,12 @@ class OwnershipViewModel: ObservableObject {
     
     /// Load the next page of results if available
     func loadMoreResultsIfNeeded() async {
-        guard hasMorePages && !isLoading else { return }
+        guard hasMorePages && !isLoadingNextPage else { return }
         
+        isLoadingNextPage = true
         currentPage += 1
         await searchFilers(resetResults: false)
+        isLoadingNextPage = false
     }
     
     /// Change sort option and reload results
@@ -137,7 +141,14 @@ class OwnershipViewModel: ObservableObject {
     
     /// Make API call to search for filers
     private func searchFilers(resetResults: Bool) async {
-        isLoading = true
+        // Set the appropriate loading flag
+        if resetResults {
+            isLoading = true
+        } else {
+            // For pagination, we're already using isLoadingNextPage
+            // which is set in loadMoreResultsIfNeeded
+        }
+        
         errorMessage = nil
         hasError = false
         
@@ -151,24 +162,45 @@ class OwnershipViewModel: ObservableObject {
         // If network is not available, use mock data with a clear message
         if networkStatus == .disconnected {
             // Use mock data
-            filers = ownershipService.getMockFilers()
+            let mockFilers = ownershipService.getMockFilers()
             
             // Filter by search query if needed
+            let filteredFilers: [Filer]
             if !searchQuery.isEmpty {
-                filers = filers.filter { 
+                filteredFilers = mockFilers.filter { 
                     $0.name.lowercased().contains(searchQuery.lowercased())
+                }
+            } else {
+                filteredFilers = mockFilers
+            }
+            
+            // For infinite scroll simulation with mock data
+            if resetResults {
+                filers = filteredFilers
+            } else {
+                // Simulate pagination by adding only a subset of the mock data
+                if currentPage <= 3 { // Simulate 3 pages of data
+                    // Add a few more items to simulate new page
+                    filers.append(contentsOf: filteredFilers.prefix(min(5, filteredFilers.count)))
                 }
             }
             
             // Sort the data
             sortMockData()
             
-            totalPages = 1
-            hasMorePages = false
+            // Set pagination state for mock data
+            if resetResults {
+                totalPages = 3 // Simulate 3 pages total for mock data
+                hasMorePages = true
+            } else {
+                hasMorePages = currentPage < totalPages
+            }
+            
+            // Reset loading states
             isLoading = false
             
             // Only show cached data message if we actually have results
-            if !filers.isEmpty {
+            if !filers.isEmpty && resetResults {
                 errorMessage = "Showing cached data"
                 hasError = true
             }
@@ -182,7 +214,7 @@ class OwnershipViewModel: ObservableObject {
             
             let response = try await ownershipService.searchFilers(
                 page: currentPage,
-                pageSize: 20,
+                pageSize: pageSize,
                 query: searchQuery.isEmpty ? nil : searchQuery,
                 sortBy: sortBy.rawValue,
                 sortOrder: sortOrder
@@ -285,7 +317,12 @@ class OwnershipViewModel: ObservableObject {
             hasError = true
         }
         
-        isLoading = false
+        // Always reset isLoading at the end of the main flow
+        // (error handlers that return early handle this themselves)
+        if resetResults {
+            isLoading = false
+        }
+        // isLoadingNextPage is managed by the caller (loadMoreResultsIfNeeded)
     }
     
     /// Sort the mock data according to current sort settings
