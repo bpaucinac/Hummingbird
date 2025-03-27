@@ -14,6 +14,20 @@ class SecurityViewModel: ObservableObject {
     @Published var hasMorePages = true
     @Published var primaryOnly = false
     @Published var searchCriteria = ""
+    @Published var selectedAssetClass = "Equity"
+    @Published var availableAssetClasses = [
+        "Equity",
+        "Fixed Income",
+        "Cash and Equivalents",
+        "Commodity",
+        "Derivative",
+        "FX",
+        "Fund",
+        "Index",
+        "Alternative",
+        "Crypto",
+        "Real Estate"
+    ]
     
     private let securityService = SecurityService()
     private var currentPage = 1
@@ -41,7 +55,8 @@ class SecurityViewModel: ObservableObject {
                 pageSize: pageSize,
                 criteria: searchCriteria,
                 listedOnly: false,
-                primaryOnly: primaryOnly
+                primaryOnly: primaryOnly,
+                assetClasses: [selectedAssetClass]
             )
             
             if isRefreshing {
@@ -77,7 +92,8 @@ class SecurityViewModel: ObservableObject {
                 pageSize: pageSize,
                 criteria: searchCriteria,
                 listedOnly: false,
-                primaryOnly: primaryOnly
+                primaryOnly: primaryOnly,
+                assetClasses: [selectedAssetClass]
             )
             
             self.securities.append(contentsOf: newSecurities)
@@ -140,6 +156,7 @@ class SecurityViewModel: ObservableObject {
     func resetFilters() {
         primaryOnly = false
         searchCriteria = ""
+        selectedAssetClass = "Equity"
     }
     
     func formatDate(_ dateString: String?) -> String {

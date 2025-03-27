@@ -263,16 +263,91 @@ struct SecuritiesView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
                     
-                    // Primary toggle
-                    HStack {
-                        Toggle("Primary Only", isOn: $securityViewModel.primaryOnly)
-                            .padding(.horizontal)
-                            .onChange(of: securityViewModel.primaryOnly) { _, _ in
-                                Task {
-                                    await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
+                    // Filters Section
+                    VStack(spacing: 12) {
+                        // Primary toggle
+                        HStack {
+                            Toggle("Primary Only", isOn: $securityViewModel.primaryOnly)
+                                .onChange(of: securityViewModel.primaryOnly) { _, _ in
+                                    Task {
+                                        await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
+                                    }
                                 }
+                            
+                            Spacer()
+                        }
+                        
+                        // Asset Class Picker
+                        HStack {
+                            Text("Asset Class")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            
+                            Spacer()
+                            
+                            Menu {
+                                ForEach(securityViewModel.availableAssetClasses, id: \.self) { assetClass in
+                                    Button(action: {
+                                        securityViewModel.selectedAssetClass = assetClass
+                                        Task {
+                                            await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
+                                        }
+                                    }) {
+                                        HStack {
+                                            Text(assetClass)
+                                            if assetClass == securityViewModel.selectedAssetClass {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(securityViewModel.selectedAssetClass)
+                                        .foregroundStyle(.primary)
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.caption)
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
+                        }
+                        
+                        // Active Filters Indicator
+                        if securityViewModel.primaryOnly || !searchText.isEmpty {
+                            HStack {
+                                Text("Active Filters:")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                
+                                if securityViewModel.primaryOnly {
+                                    FilterChip(text: "Primary Only")
+                                }
+                                
+                                if !searchText.isEmpty {
+                                    FilterChip(text: "Search: \(searchText)")
+                                }
+                                
+                                FilterChip(text: "Asset Class: \(securityViewModel.selectedAssetClass)")
+                                
+                                Spacer()
+                                
+                                Button("Clear All") {
+                                    securityViewModel.resetFilters()
+                                    searchText = ""
+                                    Task {
+                                        await securityViewModel.refreshWithCurrentFilters(token: userViewModel.token)
+                                    }
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.accent)
+                            }
+                            .padding(.horizontal)
+                        }
                     }
+                    .padding(.horizontal)
                     
                     if securityViewModel.securities.isEmpty && !securityViewModel.isLoading {
                         ContentUnavailableView {
@@ -907,6 +982,21 @@ struct StatusBadge: View {
             .padding(.vertical, 4)
             .background(Color.accentColor.opacity(0.1))
             .foregroundColor(.accentColor)
+            .clipShape(Capsule())
+    }
+}
+
+// MARK: - Filter Chip
+struct FilterChip: View {
+    let text: String
+    
+    var body: some View {
+        Text(text)
+            .font(.caption)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.accentColor.opacity(0.1))
+            .foregroundStyle(.accent)
             .clipShape(Capsule())
     }
 }

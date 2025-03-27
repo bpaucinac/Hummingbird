@@ -5,6 +5,7 @@ struct SecuritySearchRequest: Codable {
     let criteria: String
     let isPrimary: Bool?
     let isActive: Bool?
+    let assetClasses: [String]?
 }
 
 struct SecuritySearchResponse: Codable {

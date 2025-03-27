@@ -3,7 +3,7 @@ import Foundation
 class SecurityService {
     private let baseURL = "https://production.hds.kiskisoftware.com/secmaster-api/api/v2"
     
-    func searchSecurities(token: String, page: Int = 1, pageSize: Int = 50, criteria: String = "", listedOnly: Bool = false, primaryOnly: Bool = false) async throws -> [Security] {
+    func searchSecurities(token: String, page: Int = 1, pageSize: Int = 50, criteria: String = "", listedOnly: Bool = false, primaryOnly: Bool = false, assetClasses: [String] = ["Equity"]) async throws -> [Security] {
         guard let url = URL(string: "\(baseURL)/security-search?page=\(page)&pageSize=\(pageSize)") else {
             throw NSError(domain: "SecurityService", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])
         }
@@ -13,7 +13,8 @@ class SecurityService {
             listedOnly: listedOnly,
             criteria: criteria,
             isPrimary: primaryOnly ? true : nil,
-            isActive: true
+            isActive: true,
+            assetClasses: assetClasses.isEmpty ? nil : assetClasses
         )
         
         var request = URLRequest(url: url)
