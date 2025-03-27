@@ -15,6 +15,10 @@ struct MainTabView: View {
                     .toolbar(.hidden, for: .navigationBar)
                     .environmentObject(assistantViewModel)
                     .environmentObject(appConfiguration)
+                    .onAppear {
+                        // Set the userViewModel on the assistantViewModel
+                        assistantViewModel.setUserViewModel(userViewModel)
+                    }
             }
             .tabItem {
                 Label("Assistant", systemImage: "message.and.waveform.fill")
