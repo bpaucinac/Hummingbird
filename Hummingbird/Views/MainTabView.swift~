@@ -472,7 +472,65 @@ struct MessageView: View {
     }
 }
 
+// MARK: - ApplicationsFolderView
+struct ApplicationsFolderView: View {
+    @EnvironmentObject var securityViewModel: SecurityViewModel
 
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header styled like Stocks app
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("Applications")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.leading)
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 4)
+                
+                Rectangle()
+                    .frame(height: 0.5)
+                    .foregroundColor(Color(.systemGray4))
+            }
+            
+            // Original content goes here
+            Text("Applications content")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+
+// MARK: - SettingsView
+struct SettingsView: View {
+    @EnvironmentObject var userViewModel: UserViewModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header styled like Stocks app
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("Settings")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.leading)
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 4)
+                
+                Rectangle()
+                    .frame(height: 0.5)
+                    .foregroundColor(Color(.systemGray4))
+            }
+            
+            // Original content goes here
+            Text("Settings content")
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
 
 #Preview {
     MainTabView()

@@ -5,89 +5,108 @@ struct ApplicationsFolderView: View {
     @EnvironmentObject var userViewModel: UserViewModel
     
     var body: some View {
-        List {
-            // Securities Section
-            Section {
-                NavigationLink(destination: SecuritiesView()
-                    .environmentObject(securityViewModel)
-                    .environmentObject(userViewModel)
-                    .navigationTitle("Securities")) {
+        VStack(spacing: 0) {
+            // Header styled like Stocks app
+            VStack(alignment: .leading, spacing: 0) {
+                HStack {
+                    Text("Applications")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .padding(.leading)
+                    
+                    Spacer()
+                }
+                .padding(.bottom, 4)
+                
+                Rectangle()
+                    .frame(height: 0.5)
+                    .foregroundColor(Color(.systemGray4))
+            }
+            
+            List {
+                // Securities Section
+                Section {
+                    NavigationLink(destination: SecuritiesView()
+                        .environmentObject(securityViewModel)
+                        .environmentObject(userViewModel)
+                        .navigationTitle("Securities")) {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.blue.opacity(0.1))
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "chart.xyaxis.line")
+                                        .font(.title2)
+                                        .foregroundColor(.blue)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Securities")
+                                        .font(.headline)
+                                    Text("Stocks, bonds, and other assets")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 8)
+                    }
+                }
+                
+                // Portfolios Section
+                Section {
+                    NavigationLink(destination: PortfoliosView()) {
                         HStack(spacing: 16) {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.blue.opacity(0.1))
+                                    .fill(Color.purple.opacity(0.1))
                                     .frame(width: 44, height: 44)
                                 
-                                Image(systemName: "chart.xyaxis.line")
+                                Image(systemName: "folder.fill")
                                     .font(.title2)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.purple)
                             }
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Securities")
+                                Text("Portfolios")
                                     .font(.headline)
-                                Text("Stocks, bonds, and other assets")
+                                Text("Track and manage your investments")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
                         }
                         .padding(.vertical, 8)
-                }
-            }
-            
-            // Portfolios Section
-            Section {
-                NavigationLink(destination: PortfoliosView()) {
-                    HStack(spacing: 16) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.purple.opacity(0.1))
-                                .frame(width: 44, height: 44)
-                            
-                            Image(systemName: "folder.fill")
-                                .font(.title2)
-                                .foregroundColor(.purple)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Portfolios")
-                                .font(.headline)
-                            Text("Track and manage your investments")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
                     }
-                    .padding(.vertical, 8)
                 }
-            }
-            
-            // Research Section
-            Section {
-                NavigationLink(destination: ResearchView()) {
-                    HStack(spacing: 16) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.green.opacity(0.1))
-                                .frame(width: 44, height: 44)
+                
+                // Research Section
+                Section {
+                    NavigationLink(destination: ResearchView()) {
+                        HStack(spacing: 16) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.green.opacity(0.1))
+                                    .frame(width: 44, height: 44)
+                                
+                                Image(systemName: "doc.text.magnifyingglass")
+                                    .font(.title2)
+                                    .foregroundColor(.green)
+                            }
                             
-                            Image(systemName: "doc.text.magnifyingglass")
-                                .font(.title2)
-                                .foregroundColor(.green)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Research")
+                                    .font(.headline)
+                                Text("Market analysis and reports")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
                         }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Research")
-                                .font(.headline)
-                            Text("Market analysis and reports")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                        }
+                        .padding(.vertical, 8)
                     }
-                    .padding(.vertical, 8)
                 }
             }
+            .listStyle(.insetGrouped)
         }
-        .listStyle(.insetGrouped)
     }
 }
 
