@@ -427,12 +427,16 @@ struct SecurityCard: View {
     let security: Security
     let viewModel: SecurityViewModel
     @EnvironmentObject var userViewModel: UserViewModel
+    @State private var isNavigating = false
     
     var body: some View {
-        NavigationLink(destination: SecurityDetailsView(securityId: security.id)
-            .environmentObject(userViewModel)
-            .environmentObject(viewModel)
-        ) {
+        Button {
+            // Pre-fetch details before navigation
+            Task {
+                await viewModel.loadSecurityDetails(token: userViewModel.token, securityId: security.id)
+                isNavigating = true
+            }
+        } label: {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     AsyncImage(url: security.logoURL) { image in
@@ -505,6 +509,14 @@ struct SecurityCard: View {
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         }
         .buttonStyle(.plain)
+        .background(
+            NavigationLink(
+                destination: SecurityDetailsView(securityId: security.id)
+                    .environmentObject(userViewModel)
+                    .environmentObject(viewModel),
+                isActive: $isNavigating
+            ) { EmptyView() }
+        )
     }
 }
 
@@ -881,25 +893,12 @@ struct SecurityDetailsView: View {
         }
         .navigationTitle(previewDetails?.ticker ?? securityViewModel.securityDetails?.ticker ?? "Security Details")
         .navigationBarTitleDisplayMode(.inline)
-        .overlay {
-            if !previewMode && securityViewModel.isLoadingDetails {
-                LoadingOverlay(message: "Loading security details...")
-            }
-        }
         .alert("Error", isPresented: $securityViewModel.showError) {
             Button("OK") {
                 securityViewModel.error = nil
             }
         } message: {
             Text(securityViewModel.error ?? "")
-        }
-        .onAppear {
-            // Only load from API if not using preview data
-            if !previewMode {
-                Task {
-                    await securityViewModel.loadSecurityDetails(token: userViewModel.token, securityId: securityId)
-                }
-            }
         }
     }
     
