@@ -51,6 +51,31 @@ struct ApplicationsFolderView: View {
                             }
                             .padding(.vertical, 8)
                     }
+                    
+                    // Ownership App
+                    NavigationLink(destination: OwnershipView()
+                        .navigationTitle("Ownership")) {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.orange.opacity(0.1))
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "building.columns.fill")
+                                        .font(.title2)
+                                        .foregroundColor(.orange)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Ownership")
+                                        .font(.headline)
+                                    Text("Institutional filers and their holdings")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 8)
+                    }
                 }
                 
                 // Portfolios Section

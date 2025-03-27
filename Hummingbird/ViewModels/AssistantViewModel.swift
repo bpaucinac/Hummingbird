@@ -28,8 +28,9 @@ class AssistantViewModel: ObservableObject {
     2. Include any relevant data like ticker, exchange, sector, industry, latest pricing, market cap, etc. when available from HDS.
     3. When market cap data is available from HDS, ALWAYS include it explicitly, mentioning that it comes from the localCurrencyConsolidatedMarketValue field.
     4. If a user specifically asks about market cap and it's available in the HDS data, make it the focus of your answer.
-    5. If specific data points are requested but not available in HDS, clearly state "This specific data is not available in HDS."
-    6. Only fall back to your general knowledge when the securities data is completely unavailable in HDS, and in that case, clearly indicate "HDS does not have data on this security. Based on my general knowledge:"
+    5. If the user asks about a Bloomberg ticker, ALWAYS provide the full CompositeBbgTicker value.
+    6. If specific data points are requested but not available in HDS, clearly state "This specific data is not available in HDS."
+    7. Only fall back to your general knowledge when the securities data is completely unavailable in HDS, and in that case, clearly indicate "HDS does not have data on this security. Based on my general knowledge:"
     
     For non-securities or general finance questions, use your general knowledge as usual.
     """
@@ -61,6 +62,9 @@ class AssistantViewModel: ObservableObject {
             if isSecuritiesQuery(content) {
                 print("Detected securities-related query: \(content)")
                 
+                // Also check if this is a Bloomberg ticker question
+                let isBloombergTickerQuestion = isBloombergTickerQuery(content)
+                
                 // Try to get security data
                 let securityData = await tryFetchSecurityData(content)
                 
@@ -69,18 +73,35 @@ class AssistantViewModel: ObservableObject {
                     print("Security data found, enhancing prompt with HDS data")
                     
                     // Security data found - create an augmented message with the securities data
-                    let enhancedPrompt = """
-                    The user's question relates to securities. Here is relevant data from the Hummingbird Data Services (HDS) API that you should reference in your answer:
+                    let enhancedPrompt: String
+                    
+                    if isBloombergTickerQuestion {
+                        enhancedPrompt = """
+                        The user's question relates to Bloomberg tickers. Here is relevant data from the Hummingbird Data Services (HDS) API that you should reference in your answer:
 
-                    \(securityData)
+                        \(securityData)
 
-                    IMPORTANT INSTRUCTIONS:
-                    1. Start your answer with 'According to Hummingbird Data Services (HDS):'
-                    2. Incorporate this data in your response.
-                    3. If the data includes market cap information, make sure to highlight it prominently in your response.
-                    4. If the user specifically asked about market cap, focus your answer on the market cap data.
-                    5. Be explicit that market cap data comes from the 'localCurrencyConsolidatedMarketValue' field in HDS.
-                    """
+                        IMPORTANT INSTRUCTIONS:
+                        1. Start your answer with 'According to Hummingbird Data Services (HDS):'
+                        2. Focus specifically on the Bloomberg ticker information in your response.
+                        3. ALWAYS provide the full CompositeBbgTicker value when available.
+                        4. Explain that the CompositeBbgTicker is the complete Bloomberg ticker that includes both the ticker and the exchange code.
+                        5. Be explicit that this data comes from the HDS API fields 'bbgTicker' and 'compositeBbgTicker'.
+                        """
+                    } else {
+                        enhancedPrompt = """
+                        The user's question relates to securities. Here is relevant data from the Hummingbird Data Services (HDS) API that you should reference in your answer:
+
+                        \(securityData)
+
+                        IMPORTANT INSTRUCTIONS:
+                        1. Start your answer with 'According to Hummingbird Data Services (HDS):'
+                        2. Incorporate this data in your response.
+                        3. If the data includes market cap information, make sure to highlight it prominently in your response.
+                        4. If the user specifically asked about market cap, focus your answer on the market cap data.
+                        5. Be explicit that market cap data comes from the 'localCurrencyConsolidatedMarketValue' field in HDS.
+                        """
+                    }
                     
                     // Get response from Claude API with enhanced system prompt and additional context
                     let response = try await claudeService.sendMessage(
@@ -103,6 +124,7 @@ class AssistantViewModel: ObservableObject {
                     4. If appropriate, mention that while HDS doesn't have this specific data, you can provide general information.
                     5. Format your answer with clear paragraphs for readability.
                     6. If the query is about market cap or other financial metrics of a company, make sure to provide this information from your general knowledge.
+                    7. If the query is about Bloomberg tickers, explain what they are and how they are formatted based on your general knowledge.
                     """
                     
                     // Get response from Claude API with the general knowledge prompt
@@ -196,14 +218,26 @@ class AssistantViewModel: ObservableObject {
         return marketCapKeywords.contains { query.contains($0) }
     }
     
+    // Check if a query is specifically about Bloomberg ticker
+    private func isBloombergTickerQuery(_ query: String) -> Bool {
+        let query = query.lowercased()
+        let bbgKeywords = ["bloomberg ticker", "bloomberg", "bbg", "terminal code", "bbg ticker", "bloomberg code"]
+        
+        return bbgKeywords.contains { query.contains($0) }
+    }
+    
     // Try to fetch security data related to the query
     private func tryFetchSecurityData(_ query: String) async -> String? {
         print("Trying to fetch security data for query: \(query)")
         
-        // Check if this is a market cap specific query
+        // Check if this is a specific type of query
         let isMarketCapQuestion = isMarketCapQuery(query)
+        let isBloombergTickerQuestion = isBloombergTickerQuery(query)
+        
         if isMarketCapQuestion {
             print("This is a market cap specific query")
+        } else if isBloombergTickerQuestion {
+            print("This is a Bloomberg ticker specific query")
         }
         
         let queryLowercase = query.lowercased()
@@ -305,6 +339,46 @@ class AssistantViewModel: ObservableObject {
                                 print("Market cap data requested but not available for \(security.ticker)")
                             }
                         }
+                        // Special handling for Bloomberg ticker queries
+                        else if isBloombergTickerQuestion {
+                            var result = "BLOOMBERG TICKER DATA SPECIFICALLY REQUESTED:\n"
+                            result += "Company: \(security.longName) (\(security.ticker))\n"
+                            
+                            // Try to get the detailed security info with Bloomberg ticker
+                            if let securityDetails = await tryGetSecurityDetails(token: token, securityId: security.id) {
+                                result += "Bloomberg Ticker: \(securityDetails.bbgTicker)\n"
+                                result += "Composite Bloomberg Ticker: \(securityDetails.compositeBbgTicker)\n"
+                                result += "Source: HDS API fields 'bbgTicker' and 'compositeBbgTicker'\n\n"
+                                
+                                // Add additional helpful context
+                                result += "Additional context:\n"
+                                result += "Exchange: \(securityDetails.exchange.name) (\(securityDetails.exchange.mic))\n"
+                                result += "Country: \(securityDetails.country)\n"
+                                result += "ISIN: \(securityDetails.isin ?? "N/A")\n"
+                                result += "CUSIP: \(securityDetails.cusip ?? "N/A")\n"
+                                
+                                if let price = security.latestPrice {
+                                    result += "Latest Price: \(Formatters.priceFormatter.string(from: NSNumber(value: price.closeFullAdj)) ?? "N/A") (\(price.tradeDate))\n"
+                                }
+                                
+                                return result
+                            } else {
+                                // Fallback if we can't get details
+                                result += "Bloomberg Ticker: Not available in basic security data\n"
+                                result += "Note: Bloomberg ticker information requires detailed security data which could not be retrieved.\n\n"
+                                
+                                // Add some basic info we do have
+                                result += "Additional context:\n"
+                                result += "Standard Ticker: \(security.ticker)\n"
+                                result += "Currency: \(security.currency)\n"
+                                
+                                if let sector = security.classifications.first(where: { $0.subType == "Sector" }) {
+                                    result += "Sector: \(sector.name)\n"
+                                }
+                                
+                                return result
+                            }
+                        }
                         
                         return formatSecurityData(security)
                     } else {
@@ -328,7 +402,7 @@ class AssistantViewModel: ObservableObject {
                 print("Found \(securities.count) securities by name")
                 var result = ""
                 
-                // If this is a market cap question and we have results, prioritize ones with market cap data
+                // Special handling for specific query types
                 if isMarketCapQuestion {
                     for security in securities {
                         if let marketCap = security.latestMktCap {
@@ -357,8 +431,29 @@ class AssistantViewModel: ObservableObject {
                             result += formatSecurityData(security) + "\n\n"
                         }
                     }
+                } else if isBloombergTickerQuestion {
+                    // Add each security with its Bloomberg ticker data
+                    for security in securities {
+                        if let securityDetails = await tryGetSecurityDetails(token: token, securityId: security.id) {
+                            var secData = "BLOOMBERG TICKER DATA:\n"
+                            secData += "Company: \(security.longName) (\(security.ticker))\n"
+                            secData += "Bloomberg Ticker: \(securityDetails.bbgTicker)\n"
+                            secData += "Composite Bloomberg Ticker: \(securityDetails.compositeBbgTicker)\n"
+                            secData += "Source: HDS API fields 'bbgTicker' and 'compositeBbgTicker'\n\n"
+                            
+                            // Add additional helpful context
+                            secData += "Additional context:\n"
+                            secData += "Exchange: \(securityDetails.exchange.name) (\(securityDetails.exchange.mic))\n"
+                            secData += "Country: \(securityDetails.country)\n"
+                            
+                            result += secData + "\n\n"
+                        } else {
+                            // If we couldn't get details, include the basic info we have
+                            result += formatSecurityData(security) + "\n\n"
+                        }
+                    }
                 } else {
-                    // Standard formatting for non-market cap queries
+                    // Standard formatting for other queries
                     for security in securities {
                         result += formatSecurityData(security) + "\n\n"
                     }
@@ -374,6 +469,21 @@ class AssistantViewModel: ObservableObject {
         
         print("No security data found, returning nil")
         return nil
+    }
+    
+    // Helper method to get security details with Bloomberg ticker info
+    private func tryGetSecurityDetails(token: String, securityId: String) async -> SecurityDetails? {
+        print("Trying to get security details for ID: \(securityId)")
+        do {
+            let details = try await securityService.getSecurityDetails(token: token, securityId: securityId)
+            print("Successfully retrieved security details with Bloomberg tickers:")
+            print("BBG Ticker: \(details.bbgTicker)")
+            print("Composite BBG Ticker: \(details.compositeBbgTicker)")
+            return details
+        } catch {
+            print("Error getting security details: \(error)")
+            return nil
+        }
     }
     
     // Remove common stop words to improve search quality
