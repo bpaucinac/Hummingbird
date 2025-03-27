@@ -31,8 +31,8 @@ struct SettingsView: View {
                         .frame(minHeight: 44)
                 }
                 
-                NavigationLink(destination: Text("Notification Settings")) {
-                    Label("Notifications", systemImage: "bell.fill")
+                NavigationLink(destination: Text("Insights Settings")) {
+                    Label("Insights", systemImage: "chart.line.uptrend.xyaxis")
                         .frame(minHeight: 44)
                 }
                 

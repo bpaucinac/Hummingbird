@@ -22,11 +22,11 @@ struct MainTabView: View {
             
             // Notifications Tab
             NavigationStack {
-                NotificationsView()
-                    .navigationTitle("Notifications")
+                InsightsView()
+                    .navigationTitle("Insights")
             }
             .tabItem {
-                Label("Notifications", systemImage: "bell.fill")
+                Label("Insights", systemImage: "bell.fill")
             }
             
             // Markets Tab
@@ -242,20 +242,20 @@ struct AssistantView: View {
     }
 }
 
-// MARK: - Notifications View
-struct NotificationsView: View {
+// MARK: - Insights View
+struct InsightsView: View {
     var body: some View {
         List {
             Section {
                 HStack {
-                    Image(systemName: "bell.badge")
+                    Image(systemName: "chart.line.uptrend.xyaxis")
                         .frame(width: 30, height: 30)
                         .foregroundColor(.accentColor)
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Market Update")
+                        Text("Market Analysis")
                             .font(.headline)
-                        Text("New report available")
+                        Text("Latest market trends and patterns")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -269,14 +269,14 @@ struct NotificationsView: View {
                 .padding(.vertical, 8)
                 
                 HStack {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
+                    Image(systemName: "chart.pie.fill")
                         .frame(width: 30, height: 30)
                         .foregroundColor(.green)
                     
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Portfolio Alert")
+                        Text("Portfolio Insights")
                             .font(.headline)
-                        Text("Your watchlist has changed by 3.5%")
+                        Text("Your portfolio performance analysis")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
