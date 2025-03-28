@@ -161,6 +161,7 @@ class OwnershipViewModel: ObservableObject {
         
         // If network is not available, use mock data with a clear message
         if networkStatus == .disconnected {
+            print("OwnershipViewModel: Network disconnected, using mock data")
             // Use mock data
             let mockFilers = ownershipService.getMockFilers()
             
@@ -210,7 +211,12 @@ class OwnershipViewModel: ObservableObject {
         
         do {
             // Debug print to verify sort parameters
-            print("OwnershipViewModel: Sorting by \(sortBy.rawValue) in \(sortOrder == .ascending ? "ascending" : "descending") order")
+            print("OwnershipViewModel: Making API request with parameters:")
+            print("- Page: \(currentPage)")
+            print("- Page Size: \(pageSize)")
+            print("- Search Query: \(searchQuery)")
+            print("- Sort By: \(sortBy.rawValue)")
+            print("- Sort Order: \(sortOrder == .ascending ? "ascending" : "descending")")
             
             let response = try await ownershipService.searchFilers(
                 page: currentPage,
@@ -219,6 +225,12 @@ class OwnershipViewModel: ObservableObject {
                 sortBy: sortBy.rawValue,
                 sortOrder: sortOrder
             )
+            
+            print("OwnershipViewModel: Received response:")
+            print("- Total Items: \(response.totalItems)")
+            print("- Total Pages: \(response.totalPages)")
+            print("- Current Page: \(response.currentPage)")
+            print("- Items Count: \(response.items.count)")
             
             if resetResults {
                 filers = response.items

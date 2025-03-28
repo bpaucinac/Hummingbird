@@ -63,11 +63,7 @@ class OwnershipService {
         sortBy: String = "aum",
         sortOrder: SortOrder = .descending
     ) async throws -> FilerSearchResponse {
-        var urlComponents = URLComponents(string: "\(baseURL)\(ownershipPath)")
-        
-        if urlComponents?.path != nil {
-            urlComponents?.path += "/api/filers/explore"
-        }
+        var urlComponents = URLComponents(string: "\(baseURL)\(ownershipPath)/api/filers")
         
         // Add query parameters
         var queryItems = [
@@ -78,7 +74,6 @@ class OwnershipService {
         let sortPrefix = sortOrder == .ascending ? "" : "-"
         queryItems.append(URLQueryItem(name: "sorts", value: "\(sortPrefix)\(sortBy)"))
         
-        // Note: Don't add query to URL parameters since we're sending it in the body for a POST request
         urlComponents?.queryItems = queryItems
         
         guard let url = urlComponents?.url else {
@@ -87,27 +82,17 @@ class OwnershipService {
         }
         
         print("OwnershipService: Making request to \(url.absoluteString)")
+        print("OwnershipService: Request headers:")
+        print("- Authorization: Bearer \(authToken.prefix(20))...")
         
         var request = URLRequest(url: url)
-        // Set method to POST to match curl example
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpMethod = "GET"  // Changed to GET to match curl example
         request.addValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        
-        // Add search term to request body if provided
-        if let query = query, !query.isEmpty {
-            // Format the query as a JSON string
-            let jsonString = "\"\(query)\""
-            request.httpBody = jsonString.data(using: .utf8)
-            print("OwnershipService: Adding search query: \(jsonString)")
-        } else {
-            // If no query, set an empty string as body
-            request.httpBody = "\"\"".data(using: .utf8)
-        }
         
         request.timeoutInterval = 15
         
         do {
+            print("OwnershipService: Sending request...")
             let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
@@ -116,6 +101,10 @@ class OwnershipService {
             }
             
             print("OwnershipService: Received response with status code \(httpResponse.statusCode)")
+            print("OwnershipService: Response headers:")
+            httpResponse.allHeaderFields.forEach { key, value in
+                print("- \(key): \(value)")
+            }
             
             // Handle specific status codes
             switch httpResponse.statusCode {
