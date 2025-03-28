@@ -48,18 +48,16 @@ class OwnershipService {
     
     // MARK: - Filer Search
     
-    /// Search for institutional filers with pagination and sorting
+    /// Fetch all filers with pagination and sorting
     /// - Parameters:
     ///   - page: Page number (starting from 1)
     ///   - pageSize: Number of items per page
-    ///   - query: Optional search query for filer name
     ///   - sortBy: Optional sort field (e.g. "aum", "name")
     ///   - sortOrder: Sort direction (ascending or descending)
     /// - Returns: FilerSearchResponse containing matching filers
-    func searchFilers(
+    func fetchAllFilers(
         page: Int = 1,
-        pageSize: Int = 20,
-        query: String? = nil,
+        pageSize: Int = 100,
         sortBy: String = "aum",
         sortOrder: SortOrder = .descending
     ) async throws -> FilerSearchResponse {
@@ -82,13 +80,10 @@ class OwnershipService {
         }
         
         print("OwnershipService: Making request to \(url.absoluteString)")
-        print("OwnershipService: Request headers:")
-        print("- Authorization: Bearer \(authToken.prefix(20))...")
         
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"  // Changed to GET to match curl example
+        request.httpMethod = "GET"
         request.addValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        
         request.timeoutInterval = 15
         
         do {
@@ -101,10 +96,6 @@ class OwnershipService {
             }
             
             print("OwnershipService: Received response with status code \(httpResponse.statusCode)")
-            print("OwnershipService: Response headers:")
-            httpResponse.allHeaderFields.forEach { key, value in
-                print("- \(key): \(value)")
-            }
             
             // Handle specific status codes
             switch httpResponse.statusCode {
@@ -122,11 +113,6 @@ class OwnershipService {
                 throw OwnershipError.serverError(httpResponse.statusCode)
             }
             
-            // Debug - print response data
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("OwnershipService: Response: \(responseString.prefix(200))...")
-            }
-            
             let decoder = JSONDecoder()
             do {
                 return try decoder.decode(FilerSearchResponse.self, from: data)
@@ -141,6 +127,57 @@ class OwnershipService {
             print("OwnershipService: Network error: \(networkError.localizedDescription)")
             throw OwnershipError.networkError(networkError)
         }
+    }
+    
+    /// Search for filers in the cached data
+    /// - Parameters:
+    ///   - query: Search query for filer name
+    ///   - sortBy: Optional sort field (e.g. "aum", "name")
+    ///   - sortOrder: Sort direction (ascending or descending)
+    /// - Returns: Array of matching filers
+    func searchFilersInCache(
+        query: String,
+        sortBy: String = "aum",
+        sortOrder: SortOrder = .descending
+    ) -> [Filer] {
+        // Filter filers by name
+        let filteredFilers = cachedFilers.filter { filer in
+            filer.name.lowercased().contains(query.lowercased())
+        }
+        
+        // Sort the filtered results
+        return filteredFilers.sorted { a, b in
+            switch sortBy {
+            case "aum":
+                let aumA = a.aum ?? 0
+                let aumB = b.aum ?? 0
+                return sortOrder == .ascending ? aumA < aumB : aumA > aumB
+            case "name":
+                return sortOrder == .ascending ? 
+                    a.name.lowercased() < b.name.lowercased() :
+                    a.name.lowercased() > b.name.lowercased()
+            case "latestReportDate":
+                let dateA = a.dateOfLatestReport ?? ""
+                let dateB = b.dateOfLatestReport ?? ""
+                return sortOrder == .ascending ? dateA < dateB : dateA > dateB
+            default:
+                return false
+            }
+        }
+    }
+    
+    // MARK: - Cache Management
+    
+    private var cachedFilers: [Filer] = []
+    
+    /// Cache a list of filers
+    func cacheFilers(_ filers: [Filer]) {
+        cachedFilers = filers
+    }
+    
+    /// Get the cached filers
+    func getCachedFilers() -> [Filer] {
+        return cachedFilers
     }
     
     // MARK: - Mock Data

@@ -95,7 +95,7 @@ class OwnershipViewModel: ObservableObject {
     
     /// Load first page of filers with current search and sort settings
     func loadFilers() async {
-        await searchFilers(resetResults: true)
+        await fetchAndCacheFilers()
     }
     
     /// Load the next page of results if available
@@ -113,16 +113,36 @@ class OwnershipViewModel: ObservableObject {
         guard sortBy != option else { return }
         
         sortBy = option
-        await searchFilers(resetResults: true)
+        if !searchQuery.isEmpty {
+            // Re-sort the current search results
+            filers = ownershipService.searchFilersInCache(
+                query: searchQuery,
+                sortBy: sortBy.rawValue,
+                sortOrder: sortOrder
+            )
+        } else {
+            // Re-sort all cached filers
+            filers = ownershipService.getCachedFilers()
+        }
     }
     
     /// Toggle sort order between ascending and descending
     func toggleSortOrder() async {
         sortOrder = sortOrder == .ascending ? .descending : .ascending
-        await searchFilers(resetResults: true)
+        if !searchQuery.isEmpty {
+            // Re-sort the current search results
+            filers = ownershipService.searchFilersInCache(
+                query: searchQuery,
+                sortBy: sortBy.rawValue,
+                sortOrder: sortOrder
+            )
+        } else {
+            // Re-sort all cached filers
+            filers = ownershipService.getCachedFilers()
+        }
     }
     
-    /// Search with debounce to avoid excessive API calls
+    /// Search with debounce to avoid excessive filtering
     func performSearch() {
         // Cancel any in-flight search
         searchTask?.cancel()
@@ -133,8 +153,90 @@ class OwnershipViewModel: ObservableObject {
             try? await Task.sleep(nanoseconds: 300_000_000)
             guard !Task.isCancelled else { return }
             
-            await searchFilers(resetResults: true)
+            // Perform client-side search
+            if !searchQuery.isEmpty {
+                filers = ownershipService.searchFilersInCache(
+                    query: searchQuery,
+                    sortBy: sortBy.rawValue,
+                    sortOrder: sortOrder
+                )
+            } else {
+                // If no search query, show all cached filers
+                filers = ownershipService.getCachedFilers()
+            }
         }
+    }
+    
+    /// Fetch all filers and cache them
+    private func fetchAndCacheFilers() async {
+        isLoading = true
+        errorMessage = nil
+        hasError = false
+        
+        do {
+            let response = try await ownershipService.fetchAllFilers(
+                page: 1,
+                pageSize: 100,  // Fetch 100 records at once
+                sortBy: sortBy.rawValue,
+                sortOrder: sortOrder
+            )
+            
+            // Cache the filers
+            ownershipService.cacheFilers(response.items)
+            
+            // Update the displayed filers
+            filers = response.items
+            
+            // Update pagination state
+            totalPages = response.totalPages
+            hasMorePages = currentPage < response.totalPages
+            
+            // Update auth status on successful API call
+            authStatus = .authenticated
+            
+            // Clear any error messages
+            errorMessage = nil
+            hasError = false
+        } catch {
+            let errorDescription: String
+            
+            switch error {
+            case let ownershipError as OwnershipService.OwnershipError:
+                switch ownershipError {
+                case .invalidURL:
+                    errorDescription = "Invalid URL configuration"
+                case .networkError:
+                    // Use mock data for network errors
+                    filers = ownershipService.getMockFilers()
+                    ownershipService.cacheFilers(filers)
+                    errorMessage = "Using cached data"
+                    hasError = true
+                    isLoading = false
+                    return
+                case .decodingError:
+                    errorDescription = "Error processing server response"
+                case .serverError(let code):
+                    errorDescription = "Server error (code: \(code))"
+                case .unauthorized:
+                    // Use mock data for auth errors
+                    filers = ownershipService.getMockFilers()
+                    ownershipService.cacheFilers(filers)
+                    errorMessage = "Using cached data"
+                    hasError = true
+                    isLoading = false
+                    return
+                case .unknown:
+                    errorDescription = "Unknown error occurred"
+                }
+            default:
+                errorDescription = "Unknown error occurred"
+            }
+            
+            errorMessage = errorDescription
+            hasError = true
+        }
+        
+        isLoading = false
     }
     
     // MARK: - Private Methods
@@ -218,10 +320,9 @@ class OwnershipViewModel: ObservableObject {
             print("- Sort By: \(sortBy.rawValue)")
             print("- Sort Order: \(sortOrder == .ascending ? "ascending" : "descending")")
             
-            let response = try await ownershipService.searchFilers(
+            let response = try await ownershipService.fetchAllFilers(
                 page: currentPage,
                 pageSize: pageSize,
-                query: searchQuery.isEmpty ? nil : searchQuery,
                 sortBy: sortBy.rawValue,
                 sortOrder: sortOrder
             )
